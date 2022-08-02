@@ -23,8 +23,8 @@ export type Tsetting = {
 export interface IRPAConfigX extends IRPAConfig {
   close?: Function,
   minimize?: Function,
-  reSet?: Function,
-  update?: Function
+  update?: Function,
+  isStop?: boolean
 }
 
 export interface IRpaItemX extends IRpaItem {
@@ -59,7 +59,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   const [data, setData] = useState<IRpaItemX[]>([]);
   const [modalTitle, setModalTitle] = useState(config.title || "RPA任务");
   const [showNotice, setShowNotice] = useState(false);
-  const [process, setProcess] = useState(RPAProcess.CHECKING);
+  const [process, setProcess] = useState<RPAProcess>(RPAProcess.CHECKING);
   const [runBtnDisabled, setRunBtnDisabled] = useState(true);
 
   const [returnResult, setReturnResult] = useState<TReturnResult>({});   // 执行RPA返回的结果
@@ -82,6 +82,39 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       console.log("销毁");
     }
   }, []);
+
+  useEffect(() => {
+    // onClose?: Function;//关闭回调
+    // onChecking?: Function;//检测中
+    // onCheckDone?: Function;//检测完成
+    // onRuning?: Function;//运行中
+    // onRunComplete?: Function;//全部完成后触发回调
+    switch (process) {
+      case RPAProcess.CHECKING:
+        config.onChecking?.();
+        break;
+      case RPAProcess.CHECK_DONE:
+        config.onCheckDone?.();
+        break;
+      case RPAProcess.RUNING:
+        config.onRuning?.();
+        break;
+      case RPAProcess.END:
+        config.onRunComplete?.(returnResult);
+        break;
+      default:
+        break;
+    }
+  }, [process]);
+
+  useEffect(() => {
+    if (config.isStop) {
+      console.log("执行关闭");
+      stopHttp();
+      config.close?.();
+    }
+  }, [config]);
+
   function reSet() {
     setModalTitle(config.title || "RPA任务")
     let result = initData();
@@ -221,7 +254,12 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       next();
     } else {
       item.status = RpaItemStatus.FAIL;
-      item.tipText = "执行失败";
+      if (res.code === -1) {
+        item.tipText = res.message || "执行失败";
+      } else {
+        item.tipText = "执行失败";
+      }
+
     }
     //每条记录加载完就重新渲染
     data[item.index] = item;
@@ -245,11 +283,11 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       //运行回调函数
       config.onBeforeRuning?.();
       //修改状态
-      setProcess(RPAProcess.RUNNING);
+      setProcess(RPAProcess.RUNING);
       executeScript();
     }
     //终止
-    if (process === RPAProcess.RUNNING) {
+    if (process === RPAProcess.RUNING) {
       stopHttpConfirm();
     }
     //重新执行
@@ -265,6 +303,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       title: '提示',
       icon: <ExclamationCircleOutlined />,
       content: '确定停止rpa的执行?',
+      cancelText: "取消",
+      okText: "确定",
       onOk() {
         stopHttp();
         okCb && okCb();
@@ -287,7 +327,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     }
     setData([...data]);
     setProcess(RPAProcess.END);
-    config.onRunComplete?.(returnResult);
   }
 
 
@@ -305,7 +344,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     //调试
     //@ts-expect-error
     window.rpaData = data;
-    if (process !== RPAProcess.RUNNING) return;
+    if (process !== RPAProcess.RUNING) return;
     // // 点击执行之后，监测执行情况
     let isAllRpaFinish = false;
     isAllRpaFinish = data.filter(v => v.checked).every(v =>
@@ -313,7 +352,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     );
     if (isAllRpaFinish) {
       setProcess(RPAProcess.END);
-      config.onRunComplete?.(returnResult);
     }
   }, [data]);
 
@@ -359,7 +397,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
 
   const closeHandle = () => {
-    if (process === RPAProcess.RUNNING) {
+    if (process === RPAProcess.RUNING) {
       stopHttpConfirm(() => {
         config?.close?.();
       })
@@ -380,7 +418,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
 
   let fmtTimeInterval = useCallback((status: number, executeNumber: number, interval: number) => {
-    let currExcuteNumber = process < RPAProcess.RUNNING ? executeNumber : executeNumber - 1;
+    let currExcuteNumber = process < RPAProcess.RUNING ? executeNumber : executeNumber - 1;
     let currExcuteNumberStr = `${setting.executeNumber - currExcuteNumber}/${setting.executeNumber}`;
     if (interval === 0) {
       return currExcuteNumberStr
@@ -576,7 +614,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
                 打开</Button>
             }
             {/* 打开做继续执行 */}
-            {([RPAProcess.RUNNING].includes(process)) &&
+            {([RPAProcess.RUNING].includes(process)) &&
               item.status === RpaItemStatus.FAIL &&
               item.checked === true &&
               <Button
@@ -661,10 +699,10 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         </div>
         <div>
           <ConfigProvider autoInsertSpaceInButton={false}>
-            {process < RPAProcess.RUNNING &&
+            {process < RPAProcess.RUNING &&
               <Button type="primary" onClick={() => onRunRpa()} disabled={runBtnDisabled} >执行</Button>
             }
-            {process === RPAProcess.RUNNING &&
+            {process === RPAProcess.RUNING &&
               <Button danger type="primary" onClick={() => onRunRpa()} disabled={runBtnDisabled}>
                 终止
               </Button>

@@ -64,7 +64,6 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     //@ts-expect-error
     cancelToken: new axios.CancelToken(function executor(c: any) {
       cancel = () => {
-        console.log("运行-cancel");
         //取消运行关闭环境
         shopviewLauncherApi.closeEnv(envId);
         c();

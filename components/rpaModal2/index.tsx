@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { createRoot, Root } from 'react-dom/client'
 import { RpaTasksModal } from './modal';
 import { IRPAConfig } from './constant'
-
+// CHECKING = 1,//检测中
+// CHECK_DONE = 10,//检测成功
+// RUNNING = 20,//执行中
+// END = 30,//执行完
 export interface RootX extends Root {
   minimize?: boolean,
 }
@@ -22,8 +25,6 @@ function getContainer(id: string) {
 }
 
 const openRpaModal = (config: IRPAConfig) => {
-  console.log("containerDomMap", containerDomMap);
-
   let key = config.key || "defalut";
   const container = getContainer(key);
   key && (container.id = key);
@@ -34,8 +35,6 @@ const openRpaModal = (config: IRPAConfig) => {
   } else {
     containerDom = createRoot(container);
   }
-
-
   const destroy = () => {
     if (key in containerDomMap) {
       delete containerDomMap[key];
@@ -54,6 +53,7 @@ const openRpaModal = (config: IRPAConfig) => {
     }
     containerDom.render(<RpaTasksModal {...modalProps} />);
   }
+
   const close = () => {
     config?.onClose?.();
     const modalProps = {
@@ -61,19 +61,10 @@ const openRpaModal = (config: IRPAConfig) => {
       visible: false
     }
     containerDom.render(<RpaTasksModal {...modalProps} />);
-    setTimeout(destroy, 200);
+    setTimeout(destroy, 200)
   }
-  const reSet = (newConfig: IRPAConfig) => {
-    const modalProps = {
-      ...commonConfig,
-      ...config,
-      ...newConfig,
-      visible: true
-    }
-    containerDom.render(<RpaTasksModal key={Date.now()} {...modalProps} />);
-  }
+
   const update = (newConfig: any) => {
-    console.log("执行");
     const modalProps = {
       ...commonConfig,
       ...config,
@@ -81,14 +72,15 @@ const openRpaModal = (config: IRPAConfig) => {
     }
     containerDom.render(<RpaTasksModal {...modalProps} />);
   }
-  let commonConfig: any = { close, visible: true, minimize, reSet, update };
+
+  let commonConfig: any = { close, visible: true, minimize, update, isStop: false };
 
   const render = () => {
     let modalProps = {
       ...commonConfig,
       ...config
     }
-    //最小化回复
+    //最小化恢复
     if (key in containerDomMap && containerDomMap[key].minimize) {
       containerDomMap[key].render(<RpaTasksModal {...modalProps} />);
       containerDomMap[key].minimize = false;
@@ -96,6 +88,7 @@ const openRpaModal = (config: IRPAConfig) => {
     }
 
     containerDom.render(<RpaTasksModal {...modalProps} />);
+
     document.body.appendChild(container);
 
     if (key) {
@@ -104,12 +97,16 @@ const openRpaModal = (config: IRPAConfig) => {
     }
   }
 
+  const stop = () => {
+    update({ isStop: true });
+  }
+
 
 
   render();
 
   return {
-    update
+    stop
   }
 }
 

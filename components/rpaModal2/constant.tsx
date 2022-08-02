@@ -3,7 +3,7 @@ import { CheckCircleFilled, ExclamationCircleFilled } from "@ant-design/icons";
 export enum RPAProcess {
   CHECKING = 1,//检测中
   CHECK_DONE = 10,//检测成功
-  RUNNING = 20,//执行中
+  RUNING = 20,//执行中
   END = 30,//执行完
 }
 export enum RpaItemStatus {
@@ -16,8 +16,8 @@ export enum RpaItemStatus {
 export const OptsTipMap: any = {
   [RPAProcess.CHECKING + RpaItemStatus.LOADING]: "检查中",
   [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行",
-  [RPAProcess.RUNNING + RpaItemStatus.WAITING]: "等待中",
-  [RPAProcess.RUNNING + RpaItemStatus.LOADING]: "执行中",
+  [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中",
+  [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中",
   [RPAProcess.END + RpaItemStatus.SUCCESS]: "执行成功",
   [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败",
 }
@@ -36,15 +36,13 @@ export interface IRPAConfig {
   data: IRpaItem[];//脚本数据
   visible?: boolean;//是否显示
   onBeforeRuning?: Function;//执行之前的回调
-  onRunComplete?: Function;//全部完成后触发回调
   onClose?: Function;//关闭回调
+  onChecking?: Function;//检测中
+  onCheckDone?: Function;//检测完成
+  onRuning?: Function;//运行中
+  onRunComplete?: Function;//全部完成后触发回调
   onMini?: Function;//最小化回调
-  executeNumber?: number,//执行次数
-  interval?: number,//整体执行完后的间隔时间
-  limit?: number, //并发数
-  isDev?: boolean //是否是开发模式
 }
-
 
 export interface IRpaItem {
   envId: string;  //环境ID

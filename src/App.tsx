@@ -14,11 +14,9 @@ import { rpaSocket } from "./../utils/rpaSocket";
 
 function App() {
   const onClick2 = (mark) => {
-    let rpaModalDom = openRpaModal2(mock[mark]);
+    return openRpaModal2(mock[mark]);
   }
-  const onClick3 = (mark) => {
-    let rpaModalDom = openRpaModal2(mock[mark]);
-  }
+
   const onClick = (mark) => {
     let rpaModalDom = openRpaModal({
       // title: "RPA任务",
@@ -130,12 +128,22 @@ function App() {
     //链接soket  log
     rpaSocket(res2.data.data?.ws_port);
   }
-
+  let shili = null;
+  function onUpdate() {
+    shili = onClick2("newModal");
+  }
+  function stop() {
+    shili.stop();
+  }
   return (
     <div style={{ paddingLeft: 50 }}>
       <h3>v.2.0 log日志</h3>
 
       <h3>v.2.0调用</h3>
+      <h3>外部执行方法</h3>
+      <Button onClick={() => onUpdate()}>update</Button>
+      <Button onClick={() => stop()}>stop</Button>
+      <Button onClick={() => onClick2("lifeCallBack")}>触发</Button>
       <h3>账户名称</h3>
       <Button onClick={() => onClick2("accountName")}>触发</Button>
       <h3>执行脚本失败</h3>
@@ -152,7 +160,7 @@ function App() {
       <Button onClick={() => onClick2("newModal")}>触发</Button> */}
       <h3>多实例打开</h3>
       <Button onClick={() => onClick2("newModal")}>触发1</Button>
-      <Button onClick={() => onClick3("newModal2")}>触发2</Button>
+      <Button onClick={() => onClick2("newModal2")}>触发2</Button>
       <h3>参数</h3>
       <hr></hr>
       <h3>复现无头模式无法触发关闭环境的回调</h3>

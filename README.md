@@ -7,8 +7,11 @@ key:"A",
 title: "我是标题";
 visible: true;
 onBeforeRuning:()=>{};
-onRunComplete:()=>{};
 onClose:()=>{};
+onChecking: ()=>{};//检测中
+onCheckDone: ()=>{};//检测完成
+onRuning: ()=>{};//运行中
+onRunComplete: ()=>{};//全部完成后触发回调
 onMini:()=>{},
 data:[
   {
@@ -28,8 +31,7 @@ data:[
         args: {//脚本执行参数
           account:"",
           password:""
-        },
-      openUrl: "https://admin.myshopline.com/user/signIn"
+        }
     },
     script: [
       { 
@@ -39,8 +41,6 @@ data:[
           account:"",
           password:""
         },
-      //脚本手动登录执行的URL
-        openUrl: "https://admin.myshopline.com/user/signIn",
       },
       {
         scriptName: "店铺授权",
@@ -50,7 +50,6 @@ data:[
           admin_url:"https://zzshopline.myshopline.com/admin/"
         },
         //脚本手动登录执行的URL
-        openUrl: "",
       }
    ]
   }

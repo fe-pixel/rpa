@@ -250,9 +250,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     }
     //终止
     if (process === RPAProcess.RUNNING) {
-      stopHttp(() => {
-        setProcess(RPAProcess.END);
-      });
+      stopHttpConfirm();
     }
     //重新执行
     if (process === RPAProcess.END) {
@@ -262,25 +260,37 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   }, 500, { leading: true, trailing: false });
 
   //停止http请求
-  function stopHttp(okCb?: Function) {
+  function stopHttpConfirm(okCb?: Function) {
     Modal.confirm({
       title: '提示',
       icon: <ExclamationCircleOutlined />,
       content: '确定停止rpa的执行?',
       onOk() {
-        for (const item of data) {
-          item.status = RpaItemStatus.FAIL;
-          item.tipText = "已终止";
-          for (const scriptItem of item.script) {
-            scriptItem.cancel?.();
-          }
-        }
-        setData([...data]);
+        stopHttp();
         okCb && okCb();
-        config.onRunComplete?.(returnResult);
       }
     });
   }
+  //停止http请求
+  function stopHttp() {
+    for (const item of data) {
+      //关闭正在执行的登录脚本
+      item.autoLoginScript.cancel?.();
+      item.manualLoginScript.cancel?.();
+      if (item.status !== RpaItemStatus.SUCCESS) {
+        item.status = RpaItemStatus.FAIL;
+        item.tipText = "已终止";
+        for (const scriptItem of item.script) {
+          scriptItem.cancel?.();
+        }
+      }
+    }
+    setData([...data]);
+    setProcess(RPAProcess.END);
+    config.onRunComplete?.(returnResult);
+  }
+
+
 
   function executeScript() {
     for (let i = 0; i < data.length; i++) {
@@ -350,16 +360,11 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const closeHandle = () => {
     if (process === RPAProcess.RUNNING) {
-      stopHttp(() => {
+      stopHttpConfirm(() => {
         config?.close?.();
-        setProcess(RPAProcess.END);
       })
     } else {
-      //关闭正在执行的登录脚本
-      for (const item of data) {
-        item.autoLoginScript.cancel?.();
-        item.manualLoginScript.cancel?.();
-      }
+      stopHttp();
       config?.close?.();
     }
   }

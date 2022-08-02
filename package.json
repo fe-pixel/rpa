@@ -31,6 +31,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@fe-pixel/rpa-node": "^1.0.2",
     "@types/lodash": "^4.14.182",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

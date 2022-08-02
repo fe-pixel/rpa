@@ -1,0 +1,124 @@
+.rpa-auth-modal {
+  .close {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-image: url(./images/close.png);
+    background-size: cover;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+
+  .ant-modal-header {
+    border-bottom: 0 none;
+  }
+
+  .ant-modal-body {
+    padding-top: 0;
+  }
+
+  .item {
+    width: 100%;
+    height: 68px;
+    // border-bottom: 1px solid ;
+    box-shadow: inset 0px -1px 0px #E6EDF5;
+    margin: 0;
+    line-height: 68px;
+    color: #474F5E;
+    display: flex;
+    padding: 10px 0;
+    align-items: center;
+    position: relative;
+    &.showCheck{
+      cursor: pointer;
+      .check{
+        .checkbox{
+          display: inline-flex;
+        }
+      }
+    }
+  .check{
+    width:50px;
+    text-align: center;
+    .checkbox{
+      display: none;
+    }
+  }
+    .name {
+      display: flex;
+      line-height: 16px;
+      width: 100px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .desc {
+      width: 350px;
+      padding: 0 10px;
+    }
+
+    .open-env,
+    .not-started,
+    .running,
+    .success,
+    .fail {
+      position: absolute;
+      right: 0;
+      font-weight: 500;
+      padding-right: 17px;
+    }
+
+    .not-started,
+    .running {
+      color: #7A8499;
+    }
+
+    .success {
+      color: #35C08E;
+    }
+
+    .fail {
+      color: #F86140;
+    }
+
+    .env-test-fail {
+      color: #F86140;
+      position: unset;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background-image: url(./images/loading.png);
+      background-size: cover;
+      animation: rotation 1s infinite linear;
+      vertical-align: baseline;
+    }
+
+
+    @keyframes rotation {
+      to {
+        transform: rotate(-360deg);
+      }
+    }
+  }
+
+  .btn-bar {
+    width: 100%;
+    height: 38px;
+    margin-top: 28px;
+
+    .ant-btn {
+      height: 38px;
+      min-width: 100px;
+      padding: 7px 16px;
+      float: right;
+      margin-left: 12px;
+    }
+
+    .notice {
+      line-height: 38px;
+    }
+  }
+}

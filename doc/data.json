@@ -1,0 +1,46 @@
+[
+  {
+    "envId": "9186931228077920908",
+    "accountId": "",
+    "group": "",
+    "autoLoginScript": {
+      "scriptName": "自动登录脚本",
+      "runScript": "",
+      "args": {
+        "account": "",
+        "password": ""
+      },
+      "status": 1
+    },
+    "AutomaticLoginScript": {
+      "scriptName": "自动登录脚本",
+      "runScript": "",
+      "args": {
+        "account": "",
+        "password": ""
+      },
+      "status": 1
+    },
+    "script": [
+      {
+        "scriptName": "shopline登录",
+        "runScript": "运行脚本",
+        "args": {
+          "account": "",
+          "password": ""
+        },
+        "status": 1,
+        "openUrl": "https://admin.myshopline.com/user/signIn"
+      },
+      {
+        "scriptName": "店铺授权",
+        "runScript": "脚本数据",
+        "args": {
+          "admin_url": "https://zzshopline.myshopline.com/admin/"
+        },
+        "status": 1,
+        "openUrl": ""
+      }
+    ]
+  }
+]

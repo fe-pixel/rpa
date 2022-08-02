@@ -1,0 +1,44 @@
+const shopline_login_url = {{shopline_login_url}};
+const account = {{account}};
+const password= {{password}};
+
+export default async () => {
+  console.log('window.location', window.location);
+  const run = async () => {
+    if (mathURL('gitee.com')) {
+      window.location.replace(shoplineLogin);
+    }
+    if (mathURL('myshopline.com/admin/')) {
+      console.log('已经登录');
+    }
+    if (mathURL('admin.myshopline.com/user/signIn')) {
+      await sleep(3000);
+      keyboardInput($("input[type='text']")[0], account);
+      await sleep(1000);
+      keyboardInput($("input[type='password']")[0], password);
+      await sleep(1000);
+      $("button[type='submit']").trigger('click');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', run);
+};
+
+function keyboardInput(dom, value) {
+  const evt = document.createEvent('HTMLEvents');
+  evt.initEvent('input', true, true);
+  dom.value = value;
+  dom.dispatchEvent(evt);
+}
+
+function mathURL(url) {
+  return location.href.includes(url);
+}
+
+async function sleep(time) {
+  return new Promise(a => {
+    setTimeout(() => {
+      a();
+    }, time);
+  });
+}

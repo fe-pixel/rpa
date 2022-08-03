@@ -5,7 +5,7 @@ import { runScript } from './../../rpa/ui'
 import './style.less'
 import List from 'rc-virtual-list';
 import SetModal from "./setModal";
-import JournalModal from "./journalModal";
+import LogModal from "./logModal";
 import { MinusOutlined, SettingOutlined, CheckCircleFilled, ExclamationCircleFilled, HistoryOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { check, init } from "./common";
 import { cloneDeep, throttle, times } from "lodash";
@@ -46,11 +46,9 @@ export interface IRpaItemX extends IRpaItem {
   isDev: boolean,
   script: IRpaScriptX[],
   manualLoginScript: IRpaScriptX,
-  autoLoginScript: IRpaScriptX,
-  showLog: boolean,
+  autoLoginScript: IRpaScriptX
 }
 export interface IRpaScriptX extends IRpaScript {
-  initSoketEvent?: () => Promise<EventBus | undefined>;
   cancel?: Function,//取消
 }
 
@@ -70,6 +68,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   const [returnResult, setReturnResult] = useState<TReturnResult>({});   // 执行RPA返回的结果
 
   const [showSetModal, setShowSetModal] = useState<boolean>(false);
+
+  const [showLog, setShowLogModal] = useState<boolean>(false);
+  const [logIndex, setLogIndex] = useState<number>(-1);
 
   const [isAllCheck, setIsAllCheck] = useState<boolean>(false);
 
@@ -198,7 +199,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     );
     let accountId = item?.accountId;
     let group = item?.group;
-    let sessionId = item?.group + `-${item.index}`;
+    let sessionId = item?.group + item?.envId + `-${item.index}`;
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.status = RpaItemStatus.LOADING;
@@ -209,8 +210,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     });
     //把取消函数存储起来;
     item.script[item.step].cancel = p.cancel;
-    //把日志event存储起来;
-    item.script[item.step].initSoketEvent = p.initSoketEvent;
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -452,7 +451,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let options = Object.assign({}, defaultOptions, runScriptItem.options ?? {}, { headless: false });
     let accountId = item?.accountId;
     let group = item?.group;
-    let sessionId = item?.group + `-manualLoginScript`;
+    let sessionId = item?.group + item?.envId + `-manualLoginScript`;
     //每条记录加载完就重新渲染
     item.tipText = "执行自动登录中...";
     //运行脚本
@@ -462,8 +461,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
     //把取消函数存储起来;
     item.manualLoginScript.cancel = p.cancel;
-    //把日志event存储起来;
-    item.manualLoginScript.initSoketEvent = p.initSoketEvent;
+
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -495,17 +493,17 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let options = Object.assign({}, defaultOptions, runScriptItem.options ?? {}, { headless: false });
     let accountId = item?.accountId;
     let group = item?.group;
+    let sessionId = item?.group + item?.envId + `-${item.index}`;
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.tipText = "执行修复中...";
     //运行脚本
     let p = runScript({
-      script, args, envId, options, group, accountId
+      script, args, envId, options, group, accountId, sessionId
     });
     //把取消函数存储起来;
     item.script[item.step].cancel = p.cancel;
-    //把日志event存储起来;
-    item.script[item.step].initSoketEvent = p.initSoketEvent;
+
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -570,32 +568,26 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const closeSetModal = () => {
     setShowSetModal(false)
-    // config.update?.({ visible: true })
+    config.update?.({ visible: true })
   }
   const openSetModal = () => {
     setShowSetModal(true)
-    // config.update?.({ visible: false })
+    config.update?.({ visible: false })
   }
-  const closeLogModal = (index: number) => {
-    data[index].showLog = false;
-    setData([...data]);
+  const closeLogModal = () => {
+    setShowLogModal(false);
+    config.update?.({ visible: true })
   }
   const showLogModal = (e: any, index: number) => {
     e.stopPropagation();
-    data[index].showLog = true;
-    setData([...data]);
+    setLogIndex(index);
+    setShowLogModal(true);
+    config.update?.({ visible: false })
   }
 
   const RpaItem = (item: IRpaItemX, index: number) => {
     return (
       <div>
-        <JournalModal
-          visible={item.showLog}
-          process={process}
-          item={item}
-          onClose={() => closeLogModal(index)}
-          setData={setData}
-        ></JournalModal>
         <div className={`rpa-table-item ${process !== RPAProcess.CHECKING ? 'showCheck' : ''}`}
           onClick={() => onCheckChange(index)}>
           <div className="check">
@@ -673,7 +665,14 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   </div >
 
   return <>
-    {<SetModal visible={showSetModal} setting={setting} onSave={setSetting} onClose={() => closeSetModal()}></SetModal>}
+    <LogModal visible={showLog}
+      index={logIndex}
+      data={data}
+      process={process}
+      onClose={() => closeLogModal()} />
+
+    <SetModal visible={showSetModal} setting={setting} onSave={setSetting} onClose={() => closeSetModal()}></SetModal>
+
     {/* @ts-ignore */}
     <Modal
       wrapClassName="rpa-auth-modal2"

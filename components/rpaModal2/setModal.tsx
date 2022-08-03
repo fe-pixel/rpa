@@ -19,11 +19,15 @@ export default (props: { visible: boolean, setting: Tsetting, onSave: Function, 
     { label: "10", value: 10 },
     { label: "20", value: 20 },
     { label: "30", value: 30 },
-    { label: "无限", value: -1 },
+    // { label: "无限", value: -1 },
   ]
   useEffect(() => {
+    console.log("初始化-seting");
     setSetting({ ...props.setting });
     form.setFieldsValue({ ...props.setting });
+    return () => {
+      console.log("销毁-setting");
+    }
   }, [])
   const closeHandle = () => {
     props.onClose();

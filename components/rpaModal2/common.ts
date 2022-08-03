@@ -12,7 +12,6 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
   let uid = getUid();
   //设置并发数
   setConcurrent({ group: uid, limit: settingValue.limit });
-
   rpaItems?.length && rpaItems.map((item: IRpaItem, i: number) => {
     //参数检测
     if (!item.envId) {
@@ -38,8 +37,7 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
       index: i,
       ...settingValue,
       step: 0,
-      btnLoading: false,
-      showLog: false
+      btnLoading: false
     };
     //设置下并发数
     result.push(runResult);
@@ -100,7 +98,7 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
     let options = Object.assign({}, defaultOptions, loginScript.options ?? {});
     let accountId = item?.accountId;
     let group = item?.group;
-    let sessionId = item?.group + "-autoLoginScript";
+    let sessionId = item?.group + item?.envId + "-autoLoginScript";
     // console.log({ script, args, envId, options, group, accountId });
     //运行登录脚本
     let p = runScript({
@@ -127,8 +125,6 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
     //记录自动登录脚本的取消
     //把取消函数存储起来;
     item.autoLoginScript.cancel = p.cancel;
-    //把日志event存储起来;
-    item.autoLoginScript.initSoketEvent = p.initSoketEvent;
     loginPromise.push(p);
   }
   await Promise.allSettled(loginPromise);

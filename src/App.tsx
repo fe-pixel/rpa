@@ -11,7 +11,7 @@ import './App.css'
 import { Button } from 'antd';
 import axios from 'axios'
 import { rpaSocket } from "./../utils/rpaSocket";
-
+import eventBus from '../utils/EventBus'
 function App() {
   const onClick2 = (mark) => {
     return openRpaModal2(mock[mark]);
@@ -164,9 +164,8 @@ function App() {
         sessionId: "B"
       }
     );
-    let soketEvent = await p.initSoketEvent();
-    soketEvent?.on("message", (res: any) => {
-      console.log("sadsadsadsa", res);
+    eventBus?.on("message", (res: any, params) => {
+      console.log("sadsadsadsa", res, params);
     })
   }
   let shili = null;

@@ -16,10 +16,22 @@ let logDemo = async (context) => {
   let { args, driver } = context;
   const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
   const { Builder, By, until } = require('selenium-webdriver');
-  log(args.log);
+  log(Math.random());
+  await driver.sleep(1000);
+  log("我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本");
+  await driver.sleep(1000);
   logInfo(args.log);
-  logError(args.log);
-  await driver.sleep(3000);
+  await driver.sleep(1000);
+  log(args.log);
+  await driver.sleep(1000);
+  logInfo(args.log);
+  let arr = new Array(5).fill("");
+  for (let i = 0; i < arr.length; i++) {
+    await driver.sleep(500);
+    logInfo(Math.random());
+  }
+  await driver.sleep(1000);
+  logInfo(Math.random());
   return {
     code: 0,
     data: args.log,
@@ -69,6 +81,38 @@ export let logMork = {
       "envId": envArr[4],
       "autoLoginScript": {
         "scriptName": "登录失败",
+        "runScript": logDemo,
+        "args": {
+          log: "autoLoginScript-log"
+        }
+      },
+      "manualLoginScript": {
+        "runScript": executeFailFN,
+        "args": {
+          log: "manualLoginScript-log"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-1"
+          }
+        },
+        {
+          "scriptName": "输入true脚本才能执行正常",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-2"
+          }
+        }
+      ]
+    },
+    {
+      "envId": envArr[3],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
         "runScript": logDemo,
         "args": {
           log: "autoLoginScript-log"

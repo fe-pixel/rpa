@@ -6,11 +6,9 @@ import { getEnvItem } from "./common";
 import { result, params, options } from "./../type"
 import { cloneDeep } from "lodash";
 import { rpaSocket } from "../utils/rpaSocket";
-import EventBus from "../utils/EventBus";
 import { AxiosResponse } from "axios";
 
 export interface PromiseX<T> extends Promise<T> {
-  initSoketEvent?: () => Promise<EventBus | undefined>;
   cancel?: Function//取消
 }
 
@@ -24,7 +22,7 @@ export interface PromiseX<T> extends Promise<T> {
  * @return {*}  {PromiseX<result>}
  */
 export function runScript(params: Function | params, opts?: options): PromiseX<result> {
-  let socket: { stop?: Function; soketEvent?: EventBus; } | null = null
+  let socket: { stop?: Function; soketEvent?: any; } | null = null
   //参数处理
   let script, args, envId: string, accountId, group, options, sessionId;
   let optionsDefault = { log: false, headless: false }
@@ -49,6 +47,15 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     options = params.options;
     sessionId = params.sessionId;
   }
+  let paramsAll: params = {
+    script,
+    envId,
+    accountId,
+    group,
+    args,
+    options: Object.assign({}, optionsDefault, options),
+    sessionId
+  }
   //环境恢复
   envRecover([envId]);
   //1. 设置脚本名称
@@ -58,15 +65,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
   let p: PromiseX<result> = axios.request({
     url: `http://127.0.0.1:${shopviewLauncherApi.getLocalApiPort()}/api/v1/rpa/start`,
     method: "post",
-    data: {
-      script,
-      envId,
-      accountId,
-      group,
-      args,
-      options: Object.assign({}, optionsDefault, options),
-      sessionId
-    },
+    data: paramsAll,
     //@ts-expect-error
     cancelToken: new axios.CancelToken(function executor(c: any) {
       cancel = () => {
@@ -97,12 +96,8 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
       }
     });
     resp.then(res => {
-      socket = rpaSocket(res.data?.ws_port);
+      socket = rpaSocket(res.data?.ws_port, paramsAll);
     });
-    p.initSoketEvent = async (): Promise<EventBus | undefined> => {
-      await resp;
-      return socket?.soketEvent;
-    };
   }
   return p;
 }

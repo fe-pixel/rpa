@@ -1,4 +1,5 @@
 export * from "./storage"
+export * from "./common"
 
 //责任链模式的compse
 export function compose(middlewares: Function[]) {

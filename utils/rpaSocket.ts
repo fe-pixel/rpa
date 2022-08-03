@@ -1,21 +1,24 @@
-import EventBus from "./EventBus";
+import { params } from "../type";
+import eventBus from "./EventBus";
+let soketMap = {
 
+}
 // 请求地址
-export const rpaSocket = (prot: string) => {
+export const rpaSocket = (prot: string, opts?: params) => {
   const wsUrl = `ws://127.0.0.1:${prot}`
   let reconnectTimer: any = null // 重连定时器
   let lockReconnect = false // 重连锁
   let socket: any = null; // 存储socket对象
   let stop = false;
-  let soketEvent = new EventBus();
 
-  soketEvent.on("send", (res: any) => {
-    try {
-      socket.send(JSON.stringify(res));
-    } catch (error) {
-      console.error(error);
-    }
-  })
+
+  // eventBus.on("send", (res: any) => {
+  //   try {
+  //     socket.send(JSON.stringify(res));
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // })
 
   // 创建socket
   const createWebSocket = () => {
@@ -51,7 +54,7 @@ export const rpaSocket = (prot: string) => {
         tempContent = decodeURIComponent(tempContent);
         const res = JSON.parse(tempContent);
         console.log("收到消息", res);
-        soketEvent.emit("message", res);
+        eventBus.emit("message", res, opts);
       } catch (error) {
         console.error("socket解析错误", error);
       }
@@ -77,7 +80,7 @@ export const rpaSocket = (prot: string) => {
 
   createWebSocket()
   return {
-    soketEvent: soketEvent,
+    soketEvent: eventBus,
     stop: stopFn
   }
 }

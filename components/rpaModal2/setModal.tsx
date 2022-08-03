@@ -51,7 +51,7 @@ export default (props: { visible: boolean, setting: Tsetting, onSave: Function, 
       >
         <LeftOutlined style={{
           color: '#474F5E',
-          fontSize: '10px',
+          fontSize: '11px',
           verticalAlign: 'initial',
           lineHeight: "22px"
         }} />

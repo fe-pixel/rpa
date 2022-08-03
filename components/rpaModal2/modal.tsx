@@ -11,6 +11,8 @@ import { check, init } from "./common";
 import { cloneDeep, throttle, times } from "lodash";
 import { compose, stepTime } from "../../utils";
 import { setConcurrent } from "../../rpa/common";
+import EventBus from "../../utils/EventBus";
+import { AxiosResponse } from "axios";
 
 
 export type Tsetting = {
@@ -44,11 +46,14 @@ export interface IRpaItemX extends IRpaItem {
   isDev: boolean,
   script: IRpaScriptX[],
   manualLoginScript: IRpaScriptX,
-  autoLoginScript: IRpaScriptX
+  autoLoginScript: IRpaScriptX,
+  showLog: boolean,
 }
 export interface IRpaScriptX extends IRpaScript {
+  initSoketEvent?: () => Promise<EventBus | undefined>;
   cancel?: Function,//取消
 }
+
 
 const defaultOptions = { log: false, headless: true };
 
@@ -63,6 +68,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   const [runBtnDisabled, setRunBtnDisabled] = useState(true);
 
   const [returnResult, setReturnResult] = useState<TReturnResult>({});   // 执行RPA返回的结果
+
   const [showSetModal, setShowSetModal] = useState<boolean>(false);
 
   const [isAllCheck, setIsAllCheck] = useState<boolean>(false);
@@ -192,16 +198,19 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     );
     let accountId = item?.accountId;
     let group = item?.group;
+    let sessionId = item?.group + `-${item.index}`;
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.status = RpaItemStatus.LOADING;
     item.tipText = "执行中...";
     //运行脚本
     let p = runScript({
-      script, args, envId, options, group, accountId
+      script, args, envId, options, group, accountId, sessionId
     });
     //把取消函数存储起来;
     item.script[item.step].cancel = p.cancel;
+    //把日志event存储起来;
+    item.script[item.step].initSoketEvent = p.initSoketEvent;
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -443,15 +452,18 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let options = Object.assign({}, defaultOptions, runScriptItem.options ?? {}, { headless: false });
     let accountId = item?.accountId;
     let group = item?.group;
+    let sessionId = item?.group + `-manualLoginScript`;
     //每条记录加载完就重新渲染
     item.tipText = "执行自动登录中...";
     //运行脚本
     let p = runScript({
-      script, args, envId, options, group, accountId
+      script, args, envId, options, group, accountId, sessionId
     });
 
     //把取消函数存储起来;
     item.manualLoginScript.cancel = p.cancel;
+    //把日志event存储起来;
+    item.manualLoginScript.initSoketEvent = p.initSoketEvent;
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -492,6 +504,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     });
     //把取消函数存储起来;
     item.script[item.step].cancel = p.cancel;
+    //把日志event存储起来;
+    item.script[item.step].initSoketEvent = p.initSoketEvent;
     //更新视图
     data[item.index] = item;
     setData([...data]);
@@ -556,16 +570,32 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const closeSetModal = () => {
     setShowSetModal(false)
-    config.update?.({ visible: true })
+    // config.update?.({ visible: true })
   }
   const openSetModal = () => {
     setShowSetModal(true)
-    config.update?.({ visible: false })
+    // config.update?.({ visible: false })
+  }
+  const closeLogModal = (index: number) => {
+    data[index].showLog = false;
+    setData([...data]);
+  }
+  const showLogModal = (e: any, index: number) => {
+    e.stopPropagation();
+    data[index].showLog = true;
+    setData([...data]);
   }
 
   const RpaItem = (item: IRpaItemX, index: number) => {
     return (
-      <div key={item.envId} >
+      <div>
+        <JournalModal
+          visible={item.showLog}
+          process={process}
+          item={item}
+          onClose={() => closeLogModal(index)}
+          setData={setData}
+        ></JournalModal>
         <div className={`rpa-table-item ${process !== RPAProcess.CHECKING ? 'showCheck' : ''}`}
           onClick={() => onCheckChange(index)}>
           <div className="check">
@@ -590,6 +620,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           <div className={["log",
             (setting.executeNumber > 1 ? "min" : ""),
             RpaItemStatusMap[item.status]].join(" ")} title={item.tipText}>
+            <span className="logBtn" onClick={(e) => showLogModal(e, index)}>log</span>
             {item.tipText}
           </div>
           <div className="opts">

@@ -27,6 +27,26 @@
         color: #415066;
         font-size: 22px;
       }
+
+      .opt {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        background-image: url(./images/close.png);
+        background-size: cover;
+        cursor: pointer;
+        margin-left: 10px;
+  
+        &:hover {
+          opacity: .8;
+        }
+      }
+  
+      .close {
+        background-image: url(./images/close.png);
+        width: 24px;
+        height: 24px;
+      }
     }
   }
 
@@ -42,25 +62,18 @@
       color: #242833;
       margin-bottom: 16px;
     }
-
+    width: 100%;
+    max-height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
     .scroll {
       width: 100%;
-      max-height: 300px;
-      overflow-x: hidden;
-      overflow-y: auto;
-
-      &::-webkit-scrollbar {
-        width: 0;
-      }
-
-      &:hover::-webkit-scrollbar {
-        width: 4px;
-      }
-
+      min-height: 300px;
       .item {
         padding: 0px 24px;
-
+        display: flex;
         .time {
+          flex: 0 0 150px;
           font-weight: 400;
           font-size: 14px;
           line-height: 22px;
@@ -73,6 +86,12 @@
           line-height: 22px;
           color: #242833;
           padding-left: 8px;
+          &.info{
+            color: #1890ff;
+          }
+          &.error{
+            color:#F86140;
+          }
         }
       }
     }
@@ -87,9 +106,7 @@
       height: 36px;
     }
   }
-}
-
-/*---滚动条大小--*/
+  /*---滚动条大小--*/
 ::-webkit-scrollbar {
   width: 0px;
   height: 4px;
@@ -110,3 +127,5 @@
 ::-webkit-scrollbar-corner {
   display: none;
 }
+}
+

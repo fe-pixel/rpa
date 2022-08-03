@@ -1,6 +1,6 @@
 .rpa-auth-modal2 {
   cursor: default;
-
+  
   .title {
     display: flex;
     justify-content: space-between;
@@ -52,6 +52,7 @@
   // <div className="account">执行账号</div>
   // <div className="log">log状态</div>
   // <div className="opts">操作</div>
+
   .rpa-table {
     position: relative;
     border: 1px solid #D7DBE7;
@@ -142,9 +143,27 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      cursor: pointer;
       &.min{
         flex: 0 0 172px; 
       }
+    }
+    .logBtn{
+      width: 35px;
+      height: 24px;
+      background: #F7F8FB;
+      border: 1px solid #D7DBE7;
+      border-radius: 2px;
+      display: inline-block;
+      color: #474F5E;
+      margin-right: 4px;
+      text-align: center;
+      line-height: initial;
+      top: -2px;
+      position: relative;
+    }
+    .logBtn:hover{
+      opacity: .8;
     }
 
     .opts {

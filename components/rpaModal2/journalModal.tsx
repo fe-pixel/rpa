@@ -2,26 +2,47 @@ import { Modal, ConfigProvider, Button, Divider } from "antd"
 import { LeftOutlined, MinusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import './journalModal.less';
-export default () => {
-  const [visible, setVisible] = useState<boolean>(true);
-
+import { IRpaItemX } from "./modal";
+import { RPAProcess } from "./constant";
+export default (props: {
+  visible: boolean,
+  item: IRpaItemX,
+  onClose: Function,
+  setData: Function
+  process: RPAProcess
+}) => {
   const closeHandle = () => {
-    setVisible(false)
+    props.onClose();
   }
 
-  const onSave = () => {
-    setVisible(false)
-  }
+  useEffect(() => {
+    console.log("日志-初始化");
+    () => {
+      console.log("日志-销毁");
+    }
+  }, []);
+
+
+
 
   const Title = (
     <div className="modal-title">
-      <LeftOutlined style={{ color: '#474F5E', fontSize: '10px', verticalAlign: 'initial' }} />
-      <span className="back-span">返回</span>
+      <span style={{
+        cursor: "pointer"
+      }}
+        onClick={() => props.onClose()}
+      >
+        <LeftOutlined style={{
+          color: '#474F5E',
+          fontSize: '11px',
+          verticalAlign: 'initial',
+          lineHeight: "22px"
+        }} />
+        <span className="back-span">返回</span>
+      </span>
       <Divider type="vertical" style={{ margin: '0px 12px', height: '24px' }} />
-      <span className="title-span">XXXXX@gmail.com日志</span>
-
       <div className="right-btns">
-        <CloseOutlined onClick={closeHandle} />
+        <div className="opt close" onClick={() => closeHandle()} ></div>
       </div>
     </div>
   )
@@ -36,25 +57,26 @@ export default () => {
     footer={false}
     maskClosable={false}
     destroyOnClose={true}
-    visible={visible}
+    visible={props.visible}
     closeIcon={<span className="close"></span>}
   >
 
     <div className="journal-content">
       {/* <h6 className="title">XXXXX@gmail.com日志</h6> */}
       <div className="scroll">
-
         <p className="item">
           <span className="time">2022-07-16 19:12:34</span>
-          <span className="content">234-394-8456 创建广告成功</span>
+          <span className="content">234-394-8456 创建广告成功
+            234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功234-394-8456 创建广告成功
+          </span>
         </p>
         <p className="item">
           <span className="time">2022-07-16 19:12:34</span>
-          <span className="content">234-394-8456 创建广告成功</span>
+          <span className="content info">234-394-8456 创建广告成功</span>
         </p>
         <p className="item">
           <span className="time">2022-07-16 19:12:34</span>
-          <span className="content">234-394-8456 创建广告成功</span>
+          <span className="content error">234-394-8456 创建广告成功</span>
         </p>
         <p className="item">
           <span className="time">2022-07-16 19:12:34</span>
@@ -96,7 +118,7 @@ export default () => {
       <ConfigProvider autoInsertSpaceInButton={false}>
         <Button
           type="default"
-          onClick={() => onSave()}
+          onClick={() => closeHandle()}
         >
           确定
         </Button>

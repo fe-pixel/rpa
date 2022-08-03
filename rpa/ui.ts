@@ -5,9 +5,13 @@ import { shopviewLauncherApi } from './../service/ShopViewAPI'
 import { getEnvItem } from "./common";
 import { result, params, options } from "./../type"
 import { cloneDeep } from "lodash";
+import { rpaSocket } from "../utils/rpaSocket";
+import EventBus from "../utils/EventBus";
+import { AxiosResponse } from "axios";
 
 export interface PromiseX<T> extends Promise<T> {
-  cancel?: Function,//取消
+  initSoketEvent?: () => Promise<EventBus | undefined>;
+  cancel?: Function//取消
 }
 
 
@@ -20,7 +24,8 @@ export interface PromiseX<T> extends Promise<T> {
  * @return {*}  {PromiseX<result>}
  */
 export function runScript(params: Function | params, opts?: options): PromiseX<result> {
-
+  let socket: { stop?: Function; soketEvent?: EventBus; } | null = null
+  //参数处理
   let script, args, envId: string, accountId, group, options, sessionId;
   let optionsDefault = { log: false, headless: false }
   if (typeof params === 'function') {
@@ -44,6 +49,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     options = params.options;
     sessionId = params.sessionId;
   }
+  //环境恢复
   envRecover([envId]);
   //1. 设置脚本名称
   //2. 获取脚本
@@ -67,6 +73,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
         //取消运行关闭环境
         shopviewLauncherApi.closeEnv(envId);
         c();
+        socket?.stop?.();
       };
     })
   });
@@ -76,8 +83,27 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
         envId && shopviewLauncherApi.closeEnv(envId);
       }
     }
+    socket?.stop?.();
   })
+  //取消
   p.cancel = cancel;
+  //socket
+  if (sessionId) {
+    let resp = axios.request({
+      url: `http://127.0.0.1:${shopviewLauncherApi.getLocalApiPort()}/api/v1/rpa/session`,
+      method: "get",
+      params: {
+        sessionId
+      }
+    });
+    resp.then(res => {
+      socket = rpaSocket(res.data?.ws_port);
+    });
+    p.initSoketEvent = async (): Promise<EventBus | undefined> => {
+      await resp;
+      return socket?.soketEvent;
+    };
+  }
   return p;
 }
 /**

@@ -11,6 +11,21 @@ let demoFn3 = async ({ args }) => {
   await new Promise(res => setTimeout(res, 1000000));
   return args
 }
+
+let logDemo = async (context) => {
+  let { args, driver } = context;
+  const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
+  const { Builder, By, until } = require('selenium-webdriver');
+  log(args.log);
+  logInfo(args.log);
+  logError(args.log);
+  await driver.sleep(3000);
+  return {
+    code: 0,
+    data: args.log,
+    message: "ok"
+  };
+}
 const executeFailFN = `module.exports = async (context) => {
   const { Builder, By, until } = require("selenium-webdriver");
   let { 
@@ -47,6 +62,67 @@ let envArr = [
   "9161300723794233646"
 ];
 
+export let logMork = {
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[4],
+      "autoLoginScript": {
+        "scriptName": "登录失败",
+        "runScript": logDemo,
+        "args": {
+          log: "autoLoginScript-log"
+        }
+      },
+      "manualLoginScript": {
+        "runScript": executeFailFN,
+        "args": {
+          log: "manualLoginScript-log"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-1"
+          }
+        },
+        {
+          "scriptName": "输入true脚本才能执行正常",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-2"
+          }
+        }
+      ]
+    }
+  ],
+  // onClose?: Function;//关闭回调
+  // onChecking?: Function;//检测中
+  // onCheckDone?: Function;//检测完成
+  // onRuning?: Function;//运行中
+  // onRunComplete?: Function;//全部完成后触发回调
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+}
 export let lifeCallBack = {
   title: "我的测试title",
   data: [

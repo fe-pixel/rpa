@@ -123,10 +123,51 @@ function App() {
         sessionId: "B"
       }
     });
-    console.log("res", res2);
-    console.log("res2.data.data?.ws_port", res2.data.data?.ws_port);
     //链接soket  log
-    rpaSocket(res2.data.data?.ws_port);
+    let sockt = rpaSocket(res2.data.data?.ws_port);
+    sockt.soketEvent.on("message", (res) => {
+      console.log("message---", res);
+    })
+    await res1;
+    sockt.stop();
+  }
+  const onLog2 = async () => {
+    let codeFn = async (context) => {
+      const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
+      const { Builder, By, until } = require('selenium-webdriver');
+      log("测试日志");
+      logInfo("警告2");
+      logError("警告3");
+      let { driver, args, options } = context;
+      await driver.get(args.openUrl);
+      // 2. 搜索
+      let searchText = args.keyword;
+      // 定位到搜索框, 并输入关键字
+      let searchEdit = driver.findElement(By.id('kw'));
+      driver.executeScript("arguments[0].value=arguments[1];", searchEdit, searchText);
+      await new Promise(res => setTimeout(res, 1000));
+      let search = await driver.findElement(By.id('su'));
+      driver.executeScript("arguments[0].click();", search);
+      return {
+        code: 0,
+        data: args.keyword,
+        message: 'ok',
+      };
+    }
+    let p = runScript(
+      {
+        script: codeFn,
+        args: { openUrl: "https://www.baidu.com/" },
+        envId: "9209955923324946514",
+        group: "A",
+        options: { log: true, headless: true },
+        sessionId: "B"
+      }
+    );
+    let soketEvent = await p.initSoketEvent();
+    soketEvent?.on("message", (res: any) => {
+      console.log("sadsadsadsa", res);
+    })
   }
   let shili = null;
   function onUpdate() {
@@ -138,7 +179,7 @@ function App() {
   return (
     <div style={{ paddingLeft: 50 }}>
       <h3>v.2.0 log日志</h3>
-
+      <Button onClick={() => onClick2("logMork")}>触发</Button>
       <h3>v.2.0调用</h3>
       <h3>外部执行方法</h3>
       <Button onClick={() => onUpdate()}>update</Button>
@@ -168,7 +209,8 @@ function App() {
       <hr></hr>
       <h3>零散调用</h3>
       <h3>调用日志</h3>
-      <Button onClick={() => onLog()}>触发</Button>
+      <Button onClick={() => onLog()}>触发1</Button>
+      <Button onClick={() => onLog2()}>触发2</Button>
       <h3>取消请求</h3>
       <Button onClick={() => send()}>发送</Button>
       <Button onClick={() => cancelFn()}>取消</Button>

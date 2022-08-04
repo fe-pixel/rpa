@@ -44,21 +44,24 @@ export default (props: {
     eventBus.on("message", (log: any, opts: any) => {
       //过滤不是该弹框的message
       if (opts.group !== props.data[0]?.group) return;
+      if (log.type != "log") return;
+      let value = log?.data?.text;
+      let type = log?.data?.level;
+      let time = log?.data?.time?.slice(0, log?.data?.time?.lastIndexOf("."));
+      time = formatDate(new Date(time), "yyyy-MM-dd HH:mm:ss");
       let data = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
-      let time = formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
       let fileName = `${data}-${opts.group}-${opts.envId}`;
-      let type = log.type;
       logData[fileName] = logData[fileName] || [];
-      logData[fileName].push({ time, type, value: log.data });
+      logData[fileName].push({ time, type, value });
       //最大限制判断
       if (logData[fileName].length > maxSize) {
         logData[fileName].shift();
       }
       if (type === "info") {
-        props.setTipText(opts.envId, log.data);
+        props.setTipText(opts.envId, value);
       }
       if (type === "error") {
-        props.setTipText(props.index, log.data);
+        props.setTipText(props.index, value);
       }
       setLogData({ ...logData });
     })

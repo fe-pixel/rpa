@@ -9,12 +9,15 @@ import { openShoplineRpaModal } from "./components/shoplineRpaModal"
 //api
 import { runScript, getAPIPort } from "./rpa"
 
+import eventBus from "./utils/EventBus"
+
 
 export {
   runScript,
   openRpaModal,
   openShoplineRpaModal,
-  getAPIPort
+  getAPIPort,
+  eventBus,
 };
 
 

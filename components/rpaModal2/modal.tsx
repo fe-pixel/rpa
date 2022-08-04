@@ -11,8 +11,6 @@ import { check, init } from "./common";
 import { cloneDeep, throttle, times } from "lodash";
 import { compose, stepTime } from "../../utils";
 import { setConcurrent } from "../../rpa/common";
-import EventBus from "../../utils/EventBus";
-import { AxiosResponse } from "axios";
 
 
 export type Tsetting = {
@@ -46,7 +44,8 @@ export interface IRpaItemX extends IRpaItem {
   isDev: boolean,
   script: IRpaScriptX[],
   manualLoginScript: IRpaScriptX,
-  autoLoginScript: IRpaScriptX
+  autoLoginScript: IRpaScriptX,
+  startTime: Date
 }
 export interface IRpaScriptX extends IRpaScript {
   cancel?: Function,//取消
@@ -663,12 +662,21 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       <div className="opt close" onClick={() => closeHandle()} ></div>
     </div>
   </div >
-
+  const setTipText = (envId: string, text: string) => {
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      if (item.envId === envId) {
+        item.tipText = text;
+      }
+    }
+    setData([...data]);
+  }
   return <>
     <LogModal visible={showLog}
       index={logIndex}
       data={data}
       process={process}
+      setTipText={setTipText}
       onClose={() => closeLogModal()} />
 
     <SetModal visible={showSetModal} setting={setting} onSave={setSetting} onClose={() => closeSetModal()}></SetModal>

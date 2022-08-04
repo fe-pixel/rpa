@@ -178,7 +178,8 @@ function App() {
   return (
     <div style={{ paddingLeft: 50 }}>
       <h3>v.2.0 log日志</h3>
-      <Button onClick={() => onClick2("logMork")}>触发</Button>
+      <Button onClick={() => onClick2("logMork")}>触发1</Button>
+      <Button onClick={() => onClick2("logMork2")}>触发2</Button>
       <h3>v.2.0调用</h3>
       <h3>外部执行方法</h3>
       <Button onClick={() => onUpdate()}>update</Button>

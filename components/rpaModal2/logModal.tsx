@@ -1,57 +1,81 @@
 import { Modal, ConfigProvider, Button, Divider } from "antd"
 import { LeftOutlined, MinusOutlined, CloseOutlined } from '@ant-design/icons';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import './logModal.less';
 import { RPAProcess } from "./constant";
 import { IRpaItemX } from "./modal";
 import eventBus from "../../utils/EventBus";
 import { formatDate } from "../../utils";
-
 type logType = {
-  [fileName: string]: string,
+  [fileName: string]: {
+    time: string,
+    value: string,
+    type: string,
+  }[],
 }
+
 export default (props: {
   visible: boolean,
   index: number,
   data: IRpaItemX[],
   onClose: Function,
-  process: RPAProcess
+  process: RPAProcess,
+  setTipText: Function,
 }) => {
   const [logData, setLogData] = useState<logType>({});
-
+  const logContent = useRef<HTMLDivElement | null>(null);
+  const [run, setRun] = useState<boolean>(true);
+  const maxSize = 200;
   const closeHandle = () => {
     props.onClose();
   }
 
   useEffect(() => {
     console.log("日志-初始化");
-    init();
     return () => {
       console.log("日志-销毁");
     }
   }, []);
 
-  async function init() {
-    //     一个环境对应一个日志
-    // 文件名:2022-08-03-gid-envId
-    // gid-envId
-    // 2022-08-03 19:36:44  啊实打实多\r\n
+  useEffect(() => {
+    if (!props.data.length) return;
+    if (!run) return;
+    setRun(false);
     eventBus.on("message", (log: any, opts: any) => {
-      let data = formatDate(new Date(), "yyyy-MM-dd");
-      let time = formatDate(new Date(), "yyyy-MM-dd-HH:mm:ss");
-      let value = `${time}::::【${log.type}】${log.data}\r\n`
+      //过滤不是该弹框的message
+      if (opts.group !== props.data[0]?.group) return;
+      let data = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
+      let time = formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
       let fileName = `${data}-${opts.group}-${opts.envId}`;
-      let str = logData[fileName] || "";
-      logData[fileName] = str + value;
+      let type = log.type;
+      logData[fileName] = logData[fileName] || [];
+      logData[fileName].push({ time, type, value: log.data });
+      //最大限制判断
+      if (logData[fileName].length > maxSize) {
+        logData[fileName].shift();
+      }
+      if (type === "info") {
+        props.setTipText(opts.envId, log.data);
+      }
+      if (type === "error") {
+        props.setTipText(props.index, log.data);
+      }
       setLogData({ ...logData });
     })
-  }
+  }, [props.data]);
+
+
+  useEffect(() => {
+    if (logContent.current) {
+      logContent.current.scrollTop = logContent.current?.scrollHeight;
+    }
+  }, [logData])
 
   let fileName = useMemo(() => {
     if (props.data.length === 0) return "";
-    let data = formatDate(new Date(), "yyyy-MM-dd");
+    let time = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
     let item = props.data[props.index];
-    return `${data}-${item.group}-${item.envId}`;
+    return `${time}-${item.group}-${item.envId}`;
   }, [props.index])
 
   const Title = (
@@ -76,21 +100,33 @@ export default (props: {
       </div>
     </div>
   )
-  const ParseStr = () => {
-    let res = logData[fileName].split("\r\n");
+  // const ParseStr = () => {
+  //   let res = logData[fileName].split("\r\n");
+  //   return <>
+  //     {res.map((v, i) => {
+  //       let rest = v.split("::::");
+  //       let className = "";
+  //       let lastK = rest[1]?.indexOf("】")
+  //       let value = rest[1]?.slice(lastK + 1);
+  //       let t = rest[1]?.slice(1, lastK);
+  //       if (t !== "log") {
+  //         className = t;
+  //       }
+  //       return <p className="item" key={i}>
+  //         <span className="time">{rest[0]}</span>
+  //         <span className={`content ${className}`}>{value}</span>
+  //       </p>
+  //     }
+  //     )}
+  //   </>
+  // }
+  const Content = () => {
+    let res = logData[fileName];
     return <>
       {res.map((v, i) => {
-        let rest = v.split("::::");
-        let className = "";
-        let lastK = rest[1]?.indexOf("】")
-        let value = rest[1]?.slice(lastK + 1);
-        let t = rest[1]?.slice(1, lastK);
-        if (t !== "log") {
-          className = t;
-        }
         return <p className="item" key={i}>
-          <span className="time">{rest[0]}</span>
-          <span className={`content ${className}`}>{value}</span>
+          <span className="time">{v.time}</span>
+          <span className={`content ${v.type}`}>{v.value}</span>
         </p>
       }
       )}
@@ -110,10 +146,10 @@ export default (props: {
     closeIcon={<span className="close"></span>}
   >
 
-    <div className="journal-content">
+    <div ref={logContent} className="journal-content">
       {/* <h6 className="title">XXXXX@gmail.com日志</h6> */}
       <div className="scroll">
-        {logData[fileName] ? <ParseStr></ParseStr>
+        {(logData[fileName] && logData[fileName]?.length > 0) ? <Content></Content>
           :
           <div style={{ textAlign: "center", color: "#ccc" }}>暂无数据~</div>
         }

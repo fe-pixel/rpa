@@ -24,12 +24,11 @@ export const rpaSocket = (prot: string, opts?: params) => {
   const createWebSocket = () => {
     try {
       socket = new WebSocket(wsUrl)
-      init()
+      init();
     } catch (e) {
       !stop && reconnect();
     }
   }
-
 
   // 监听集合
   const init = () => {
@@ -39,7 +38,6 @@ export const rpaSocket = (prot: string, opts?: params) => {
     };
 
     socket.onerror = (e: any) => {
-      console.log('发生异常了');
       !stop && reconnect();
     };
 
@@ -53,7 +51,7 @@ export const rpaSocket = (prot: string, opts?: params) => {
         //中文解析掉
         tempContent = decodeURIComponent(tempContent);
         const res = JSON.parse(tempContent);
-        console.log("收到消息", res);
+        // console.log("收到消息", res);
         eventBus.emit("message", res, opts);
       } catch (error) {
         console.error("socket解析错误", error);

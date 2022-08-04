@@ -25,10 +25,11 @@ let logDemo = async (context) => {
   log(args.log);
   await driver.sleep(1000);
   logInfo(args.log);
-  let arr = new Array(5).fill("");
+  // logError("执行失败");
+  let arr = new Array(10).fill("");
   for (let i = 0; i < arr.length; i++) {
     await driver.sleep(500);
-    logInfo(Math.random());
+    log(Math.random());
   }
   await driver.sleep(1000);
   logInfo(Math.random());
@@ -74,7 +75,102 @@ let envArr = [
   "9161300723794233646"
 ];
 
+export let logMork2 = {
+  key: "A",
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[0],
+      "autoLoginScript": {
+        "scriptName": "登录失败",
+        "runScript": logDemo,
+        "args": {
+          log: "autoLoginScript-log-2"
+        }
+      },
+      "manualLoginScript": {
+        "runScript": executeFailFN,
+        "args": {
+          log: "manualLoginScript-log"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-1-1"
+          }
+        },
+        {
+          "scriptName": "输入true脚本才能执行正常",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-2-1"
+          }
+        }
+      ]
+    },
+    {
+      "envId": envArr[1],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": logDemo,
+        "args": {
+          log: "autoLoginScript-log-2"
+        }
+      },
+      "manualLoginScript": {
+        "runScript": executeFailFN,
+        "args": {
+          log: "manualLoginScript-log"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-1-1"
+          }
+        },
+        {
+          "scriptName": "输入true脚本才能执行正常",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-2-2"
+          }
+        }
+      ]
+    }
+  ],
+  // onClose?: Function;//关闭回调
+  // onChecking?: Function;//检测中
+  // onCheckDone?: Function;//检测完成
+  // onRuning?: Function;//运行中
+  // onRunComplete?: Function;//全部完成后触发回调
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+}
 export let logMork = {
+  key: "B",
   title: "我的测试title",
   data: [
     {

@@ -37,7 +37,8 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
       index: i,
       ...settingValue,
       step: 0,
-      btnLoading: false
+      btnLoading: false,
+      startTime: new Date()
     };
     //设置下并发数
     result.push(runResult);

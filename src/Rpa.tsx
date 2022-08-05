@@ -2,18 +2,17 @@ import 'antd/dist/antd.css'
 import './test.less'
 import { Button, Col, Row } from 'antd'
 import { useEffect, useState } from 'react'
-import { runScript } from './../rpa'
-import axios from "./../utils/axioshttp"
+import { getAPIPort, runScript } from './../rpa'
+import axios from "axios";
 import { shopviewLauncherApi } from "./../service/ShopViewAPI"
 import { mockData } from "./mock"
 import template from "./../utils/template"
 import TextArea from 'antd/lib/input/TextArea'
 
-
 function Rpa() {
   const [count, setCount] = useState(0);
-  const openWin = () => {
-    let envId = "9168978793798293369"
+  const openWin = async () => {
+    let envId = (await getEnvIds(1))[0]
     let script = template.openUrl;
     let args = { openUrl: "https://www.baidu.com/" };
     runScript({
@@ -24,9 +23,9 @@ function Rpa() {
   }
 
   const runScript1 = () => {
-    let envId = mockData[0].envId;
-    let script = mockData[0].script[0].runScript;
-    let args = mockData[0].script[0].args;
+    let envId = mockData()[0].envId;
+    let script = mockData()[0].script[0].runScript;
+    let args = mockData()[0].script[0].args;
     runScript({
       script,
       args,
@@ -34,9 +33,9 @@ function Rpa() {
     });
   }
   const runScript2 = () => {
-    let envId = mockData[0].envId;
-    let script = mockData[0].script[1].runScript;
-    let args = mockData[0].script[1].args;
+    let envId = mockData()[0].envId;
+    let script = mockData()[0].script[1].runScript;
+    let args = mockData()[0].script[1].args;
     runScript({
       script,
       args,
@@ -44,9 +43,9 @@ function Rpa() {
     });
   }
   const runScript3 = () => {
-    let envId = mockData[0].envId;
-    let script = mockData[1].script[1].runScript;
-    let args = mockData[1].script[1].args;
+    let envId = mockData()[0].envId;
+    let script = mockData()[1].script[1].runScript;
+    let args = mockData()[1].script[1].args;
     runScript({
       script,
       args,
@@ -55,7 +54,7 @@ function Rpa() {
   }
 
   const runScript4 = () => {
-    let envId = mockData[0].envId
+    let envId = mockData()[0].envId
     let script = template.openUrl;
     let args = { openUrl: "https://www.baidu.com/" };
     runScript({
@@ -127,8 +126,8 @@ function Rpa() {
     };
   };
 
-  let reSet = () => {
-    let envId = "9179307928740641281";
+  let reSet = async () => {
+    let envId = (await getEnvIds(1))[0]
     let args = { openUrl: "https://www.baidu.com/" };
     let options = { log: true, headless: false };
     let params = { envId, args, options };
@@ -154,9 +153,10 @@ function Rpa() {
     }, params));
   }
 
-  const runWeb = (num) => {
-    let arr = ["9151932498655370565", "9162263164331647149", "9209955923324946514", "9193017789882505763", "9183805073595268917"];
-    arr = arr.splice(0, num);
+  const runWeb = async (num) => {
+    let arr = await getEnvIds(num);
+    console.log("arr", arr);
+
     for (let i = 0; i < arr.length; i++) {
       let item = arr[i];
       run({ "envId": item }, "环境" + i)
@@ -218,4 +218,28 @@ function Rpa() {
 
 export default Rpa
 
+async function getEnvIds(count: number = 1) {
+  let res = await searchEnvs({
+    "count": count,
+    "openState": 1//打开状态的环境
+  });
+  let { code, data } = res.data
+  if (code !== 0) return;
+  if (data.items.length === 0) {
+    console.error("当前暂无可用环境");
+    return;
+  }
+  return data.items.map((v: any) => v.envId);
+}
 
+function searchEnvs(params: any) {
+  //获取端口
+  const baseURL = `http://127.0.0.1:${getAPIPort()}`
+  let getEnvs = "/api/v1/env/search"
+  axios.defaults.baseURL = baseURL;
+  return axios.request({
+    url: getEnvs,
+    method: "get",
+    params
+  })
+}

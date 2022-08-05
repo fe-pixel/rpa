@@ -12,15 +12,19 @@ import { Button } from 'antd';
 import axios from 'axios'
 import { rpaSocket } from "./../utils/rpaSocket";
 import eventBus from '../utils/EventBus'
+import { executeFailFN, logDemo } from './mock'
 function App() {
+  const onClick3 = (mark) => {
+    return openRpaModal2(mock[mark]());
+  }
   const onClick2 = (mark) => {
-    return openRpaModal2(mock[mark]);
+    return openRpaModal2(mock[mark]());
   }
 
   const onClick = (mark) => {
     let rpaModalDom = openRpaModal({
       // title: "RPA任务",
-      data: mock[mark],
+      data: mock[mark](),
       onBeforeRuning: () => {
       },
       onClose: (res) => {
@@ -34,7 +38,7 @@ function App() {
   const auth = (mark) => {
     let rpaModalDom = openShoplineRpaModal({
       // title: "RPA任务",
-      data: mock[mark],
+      data: mock[mark](),
       onBeforeRuning: () => {
       },
       onRunComplete: (result) => {
@@ -54,7 +58,6 @@ function App() {
     let searchEdit = driver.findElement(By.id('kw'));
     driver.executeScript("arguments[0].value=arguments[1];", searchEdit, searchText);
     await new Promise(res => setTimeout(res, 1000));
-
     let search = await driver.findElement(By.id('su'));
     driver.executeScript("arguments[0].click();", search);
     await new Promise(res => setTimeout(res, 5000));
@@ -175,8 +178,11 @@ function App() {
   function stop() {
     shili.stop();
   }
+
   return (
     <div style={{ paddingLeft: 50 }}>
+      <h3>v.2.0 压测2k环境</h3>
+      <Button onClick={() => onClick3("pressureTest")}>触发</Button>
       <h3>v.2.0 log日志</h3>
       <Button onClick={() => onClick2("logMork")}>触发1</Button>
       <Button onClick={() => onClick2("logMork2")}>触发2</Button>

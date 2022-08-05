@@ -72,7 +72,6 @@ export const rpaSocket = (prot: string, opts?: params) => {
     }, 4000);
   }
   function stopFn() {
-    socket?.close();
     stop = true;
   }
 

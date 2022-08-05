@@ -40,16 +40,16 @@ export interface IRPAConfig {
   onChecking?: Function;//检测中
   onCheckDone?: Function;//检测完成
   onRuning?: Function;//运行中
-  onRunComplete?: Function;//全部完成后触发回调
+  onRunComplete?: IFn;//全部完成后触发回调
   onMini?: Function;//最小化回调
 }
 
 export interface IRpaItem {
   envId: string;  //环境ID
   accountId?: string;  //环境名字  会根据ID获取
-  autoLoginScript: IRpaScript,
-  manualLoginScript: IRpaScript,
-  script: IRpaScript[],
+  autoLoginScript: IRpaScript,//自动登录脚本
+  manualLoginScript: IRpaScript,//手动登录脚本
+  script: IRpaScript[],//运行业务脚本
 };
 
 export interface IRpaScript {
@@ -58,6 +58,10 @@ export interface IRpaScript {
   args?: Object;  //脚本参数
   options?: { log?: boolean, headless?: boolean },
   openUrl?: string; //当执行手动登录时配置的登录地址
+}
+
+interface IFn {
+  (result: TReturnResult): void;
 }
 
 export type TReturnResult = {

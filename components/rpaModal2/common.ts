@@ -48,7 +48,6 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
 
 export async function check(rpaItems: IRpaItemX[], setData: Function) {
   //环境恢复机制
-  envRecover(rpaItems.map(v => v.envId));
   const defaultOptions = { log: false, headless: true };
   let loginPromise = [];
   //初始化检查是否被占用

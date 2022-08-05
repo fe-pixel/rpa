@@ -56,8 +56,6 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     options: Object.assign({}, optionsDefault, options),
     sessionId
   }
-  //环境恢复
-  envRecover([envId]);
   //1. 设置脚本名称
   //2. 获取脚本
   //3. 打开脚本执行
@@ -156,7 +154,7 @@ export async function init(arr: any) {
 
 
 
-export async function envRecover(ids: string[]) {
+export async function envRecover(ids?: string[]) {
   let openedItems = await shopviewLauncherApi.getExpandActiveList();
   let openedEnvs = openedItems.filter((v: any) => {
     // return v.type === "rpa" && ids.includes(v.id);
@@ -170,3 +168,7 @@ export async function envRecover(ids: string[]) {
     }
   })
 }
+
+window.addEventListener("beforeunload", function () {
+  envRecover()
+})

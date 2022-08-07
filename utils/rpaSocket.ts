@@ -1,24 +1,33 @@
 import { params } from "../type";
 import eventBus from "./EventBus";
-let soketMap = {
+let soketMap: {
+  [envId: string]: WebSocket[]
+} = {
 
 }
+eventBus.on("send", (envId: string, res: any) => {
+  try {
+    let sendData = JSON.stringify(res);
+    let sokets = soketMap[envId] || [];
+    for (let i = 0; i < sokets.length; i++) {
+      const soket = sokets[i];
+      if (soket.readyState === 1) {
+        soket.send(sendData);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  //清除已关闭socket
+  soketMap[envId] = soketMap[envId]?.filter(s => s.readyState === 1);
+})
 // 请求地址
-export const rpaSocket = (prot: string, opts?: params) => {
+export const rpaSocket = (prot: string, opts: params) => {
   const wsUrl = `ws://127.0.0.1:${prot}`
   let reconnectTimer: any = null // 重连定时器
   let lockReconnect = false // 重连锁
   let socket: any = null; // 存储socket对象
   let stop = false;
-
-
-  // eventBus.on("send", (res: any) => {
-  //   try {
-  //     socket.send(JSON.stringify(res));
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // })
 
   // 创建socket
   const createWebSocket = () => {
@@ -43,6 +52,8 @@ export const rpaSocket = (prot: string, opts?: params) => {
 
     socket.onopen = () => {
       console.log('链接成功');
+      soketMap[opts.envId] = soketMap[opts.envId] || [];
+      soketMap[opts.envId].push(socket);
     };
 
     socket.onmessage = (event: any) => {

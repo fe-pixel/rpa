@@ -7,6 +7,7 @@ import { result, params, options } from "./../type"
 import { cloneDeep } from "lodash";
 import { rpaSocket } from "../utils/rpaSocket";
 import { AxiosResponse } from "axios";
+import eventBus from "./../utils/EventBus";
 
 export interface PromiseX<T> extends Promise<T> {
   cancel?: Function//取消
@@ -67,6 +68,8 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     //@ts-expect-error
     cancelToken: new axios.CancelToken(function executor(c: any) {
       cancel = () => {
+        //关闭对应的socket;
+        //eventBus.emit("send", envId, { type: "command", data: { value: "stop" } });
         //取消运行关闭环境
         shopviewLauncherApi.closeEnv(envId);
         c();
@@ -81,6 +84,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
       }
     }
     socket?.stop?.();
+    p.cancel = undefined;
   })
   //取消
   p.cancel = cancel;
@@ -169,6 +173,6 @@ export async function envRecover(ids?: string[]) {
   })
 }
 
-window.addEventListener("beforeunload", function () {
-  envRecover()
-})
+// window.addEventListener("beforeunload", function () {
+//   envRecover()
+// })

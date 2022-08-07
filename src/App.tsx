@@ -13,10 +13,8 @@ import axios from 'axios'
 import { rpaSocket } from "./../utils/rpaSocket";
 import eventBus from '../utils/EventBus'
 import { executeFailFN, logDemo } from './mock'
+import { getAPIPort } from '../rpa'
 function App() {
-  const onClick3 = (mark) => {
-    return openRpaModal2(mock[mark]());
-  }
   const onClick2 = (mark) => {
     return openRpaModal2(mock[mark]());
   }
@@ -178,11 +176,37 @@ function App() {
   function stop() {
     shili.stop();
   }
+  let demoFn = async ({ args }) => {
+    await new Promise(res => setTimeout(res, 2000));
+    return args
+  }
+
+  let envPlaceholder = async () => {
+    let ids = await getEnvIds(1);
+    let arr = new Array(5).fill("");
+    for (let i = 0; i < arr.length; i++) {
+      await runScript(
+        {
+          script: demoFn,
+          envId: ids[0],
+          args: {
+            code: 0,
+            data: i,
+            message: "ok",
+          },
+          group: "A",
+          options: { log: true, headless: true }
+        }
+      );
+    }
+  }
 
   return (
-    <div style={{ paddingLeft: 50 }}>
+    <div style={{ padding: "50px 150px" }}>
+      <h3>环境占用bug测试</h3>
+      <Button onClick={() => envPlaceholder()}>触发</Button>
       <h3>v.2.0 压测2k环境</h3>
-      <Button onClick={() => onClick3("pressureTest")}>触发</Button>
+      <Button onClick={() => onClick2("pressureTest")}>触发</Button>
       <h3>v.2.0 log日志</h3>
       <Button onClick={() => onClick2("logMork")}>触发1</Button>
       <Button onClick={() => onClick2("logMork2")}>触发2</Button>
@@ -254,3 +278,30 @@ function App() {
 }
 
 export default App
+
+
+
+async function getEnvIds(count: number = 1) {
+  let res = await searchEnvs({
+    "count": count,
+    "openState": 1//打开状态的环境
+  });
+  let { code, data } = res.data
+  if (code !== 0) return;
+  if (data.items.length === 0) {
+    console.error("当前暂无可用环境");
+    return;
+  }
+  return data.items.map((v: any) => v.envId);
+}
+function searchEnvs(params: any) {
+  //获取端口
+  const baseURL = `http://127.0.0.1:${getAPIPort()}`
+  let getEnvs = "/api/v1/env/search"
+  axios.defaults.baseURL = baseURL;
+  return axios.request({
+    url: getEnvs,
+    method: "get",
+    params
+  })
+}

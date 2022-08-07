@@ -198,7 +198,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     );
     let accountId = item?.accountId;
     let group = item?.group;
-    let sessionId = item?.group + item?.envId + `-${item.index}`;
+    let sessionId = item?.group + item?.envId + `-${item.step}`;
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.status = RpaItemStatus.LOADING;
@@ -492,7 +492,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let options = Object.assign({}, defaultOptions, runScriptItem.options ?? {}, { headless: false });
     let accountId = item?.accountId;
     let group = item?.group;
-    let sessionId = item?.group + item?.envId + `-${item.index}`;
+    let sessionId = item?.group + item?.envId + `-${item.step}`;
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.tipText = "执行修复中...";

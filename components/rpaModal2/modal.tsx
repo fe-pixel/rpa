@@ -213,6 +213,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     data[item.index] = item;
     setData([...data]);
     let res = await p;
+    //把原本的取消函数还原
+    item.script[item.step].cancel = undefined;
     const returnResultTmp = returnResult || {};
     returnResultTmp[item.envId] = returnResult[item.envId] || {};
     returnResultTmp[item.envId].envId = item.envId
@@ -349,8 +351,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   useEffect(() => {
     //调试
-    //@ts-expect-error
-    window.rpaData = data;
+    // window.rpaData = data;
     if (process !== RPAProcess.RUNING) return;
     // // 点击执行之后，监测执行情况
     let isAllRpaFinish = false;
@@ -465,6 +466,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     data[item.index] = item;
     setData([...data]);
     let res = await p;
+    //把原本的取消函数还原
+    item.manualLoginScript.cancel = undefined;
+
     item.btnLoading = false;
     if (res.code === 0) {
       //成功
@@ -507,6 +511,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     data[item.index] = item;
     setData([...data]);
     let res = await p;
+    //把原本的取消函数还原
+    item.script[item.step].cancel = undefined;
+
     item.btnLoading = false;
 
     const returnResultTmp = returnResult || {};

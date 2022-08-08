@@ -105,6 +105,8 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
       script, args, envId, options, group, accountId, sessionId
     });
     p.then((res) => {
+      //把原本的取消设置为空
+      item.autoLoginScript.cancel = undefined;
       if (res.code === 0) {
         item.status = RpaItemStatus.SUCCESS;
         item.tipText = "检查正常";

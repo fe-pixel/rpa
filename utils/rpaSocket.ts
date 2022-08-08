@@ -5,6 +5,8 @@ let soketMap: {
 } = {
 
 }
+//调试
+// window.soketMap = soketMap;
 eventBus.on("send", (envId: string, res: any) => {
   try {
     let sendData = JSON.stringify(res);
@@ -18,8 +20,6 @@ eventBus.on("send", (envId: string, res: any) => {
   } catch (error) {
     console.error(error);
   }
-  //清除已关闭socket
-  soketMap[envId] = soketMap[envId]?.filter(s => s.readyState === 1);
 })
 // 请求地址
 export const rpaSocket = (prot: string, opts: params) => {
@@ -44,6 +44,8 @@ export const rpaSocket = (prot: string, opts: params) => {
     socket.onclose = (e: any) => {
       console.log('链接关闭', e);
       !stop && reconnect();
+      //清除已关闭socket
+      soketMap[opts.envId] = soketMap[opts.envId]?.filter(s => s.readyState === 1);
     };
 
     socket.onerror = (e: any) => {

@@ -36,6 +36,7 @@ export let logDemo = async (context) => {
   }
   await driver.sleep(1000);
   logInfo(Math.random());
+
   return {
     code: 0,
     data: args.log,
@@ -80,7 +81,7 @@ let envArr = [
 ];
 let envIds2000 = [];
 ; (async () => {
-  envIds2000 = await getEnvIds(300);
+  envIds2000 = await getEnvIds(20);
 })()
   ; (async () => {
     envArr = await getEnvIds(100);

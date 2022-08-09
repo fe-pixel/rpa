@@ -47,13 +47,17 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
 }
 
 export async function check(rpaItems: IRpaItemX[], setData: Function) {
+
   //环境恢复机制
   const defaultOptions = { log: false, headless: true };
   let loginPromise = [];
   //初始化检查是否被占用
   for (let i = 0; i < rpaItems.length; i++) {
     const item = rpaItems[i];
+    //中途停止退出操作
+    if (item.status === RpaItemStatus.FAIL) break;
     let { code, data } = await getEnvItem(item.envId);
+
     //获取环境失败
     if (code != 0 || !data || data.items?.length === 0) {
       item.status = RpaItemStatus.FAIL;
@@ -89,7 +93,6 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
         item.accountName = accountName;
       }
     }
-
     //判断是否是跳过执行
     let loginScript = item.autoLoginScript;
     let script = loginScript.runScript;
@@ -100,10 +103,15 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
     let group = item?.group;
     let sessionId = item?.group + item?.envId + "-autoLoginScript";
     // console.log({ script, args, envId, options, group, accountId });
+    //中途停止退出操作
+    //@ts-expect-error
+    if (item.status === RpaItemStatus.FAIL) break;
     //运行登录脚本
     let p = runScript({
       script, args, envId, options, group, accountId, sessionId
     });
+
+
     p.then((res) => {
       //把原本的取消设置为空
       item.autoLoginScript.cancel = undefined;

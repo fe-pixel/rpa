@@ -55,9 +55,6 @@ export interface IRpaScriptX extends IRpaScript {
 const defaultOptions = { log: false, headless: true };
 
 const RpaTasksModal = (config: IRPAConfigX) => {
-  // const [runResults, seIRpaItems] = useState<IRpaItem[]>([]);
-  // const [isRpaRunning, setRpaRunning] = useState(false);
-
   const [data, setData] = useState<IRpaItemX[]>([]);
   const [modalTitle, setModalTitle] = useState(config.title || "RPA任务");
   const [showNotice, setShowNotice] = useState(false);
@@ -405,7 +402,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
 
   const closeHandle = () => {
-    if (process === RPAProcess.RUNING) {
+    if (process === RPAProcess.RUNING || process === RPAProcess.CHECKING) {
       stopHttpConfirm(() => {
         config?.close?.();
       })
@@ -481,7 +478,11 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     } else {
       //失败
       item.status = RpaItemStatus.FAIL;
-      item.tipText = res.message;
+      if (res.code === -1) {
+        item.tipText = res.message || "执行失败";
+      } else {
+        item.tipText = "执行失败";
+      }
     }
     data[item.index] = item;
     setData([...data]);
@@ -565,7 +566,11 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       _executeScript(item);
     } else {
       item.status = RpaItemStatus.FAIL;
-      item.tipText = "执行失败";
+      if (res.code === -1) {
+        item.tipText = res.message || "执行失败";
+      } else {
+        item.tipText = "执行失败";
+      }
     }
     //每条记录加载完就重新渲染
     data[item.index] = item;

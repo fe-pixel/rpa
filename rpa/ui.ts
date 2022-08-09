@@ -61,6 +61,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
   //2. 获取脚本
   //3. 打开脚本执行
   let cancel = () => { };
+  let stop = false;
   let p: PromiseX<result> = axios.request({
     url: `http://127.0.0.1:${shopviewLauncherApi.getLocalApiPort()}/api/v1/rpa/start`,
     method: "post",
@@ -70,10 +71,11 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
       cancel = () => {
         //关闭对应的socket;
         eventBus.emit("send", envId, { type: "command", data: { value: "stop" } });
+        socket?.stop?.();
+        c();
+        stop = true;
         //取消运行关闭环境
         shopviewLauncherApi.closeEnv(envId);
-        c();
-        socket?.stop?.();
       };
     })
   });
@@ -98,6 +100,9 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
     });
     resp.then(res => {
       socket = rpaSocket(res.data?.ws_port, paramsAll);
+      if (stop) {
+        socket.stop?.();
+      }
     });
   }
   return p;

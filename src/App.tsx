@@ -195,7 +195,7 @@ function App() {
             message: "ok",
           },
           group: "A",
-          options: { log: true, headless: true }
+          options: { log: false, headless: true }
         }
       );
     }

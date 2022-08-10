@@ -79,13 +79,9 @@ let envArr = [
   "9183805073595268917",
   "9161300723794233646"
 ];
-let envIds2000 = [];
 ; (async () => {
-  envIds2000 = await getEnvIds(20);
+  envArr = await getEnvIds(100);
 })()
-  ; (async () => {
-    envArr = await getEnvIds(100);
-  })()
 
 export let envError = () => ({
   key: "A",
@@ -153,7 +149,7 @@ export let pressureTest = () => {
   return {
     key: "A",
     title: "我的测试title",
-    data: envIds2000.map(v => ({
+    data: envArr.map(v => ({
       "envId": v,
       "autoLoginScript": {
         "scriptName": "自动登录脚本",
@@ -1372,7 +1368,10 @@ async function getEnvIds(count: number = 1) {
     "openState": 1//打开状态的环境
   });
   let { code, data } = res.data
-  if (code !== 0) return;
+  if (code !== 0) {
+    alert("请检查账号是否正常登录");
+    return;
+  }
   if (data.items.length === 0) {
     console.error("当前暂无可用环境");
     return;

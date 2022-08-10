@@ -289,7 +289,10 @@ async function getEnvIds(count: number = 1) {
     "openState": 1//打开状态的环境
   });
   let { code, data } = res.data
-  if (code !== 0) return;
+  if (code !== 0) {
+    alert("请检查账号是否正常登录");
+    return;
+  }
   if (data.items.length === 0) {
     console.error("当前暂无可用环境");
     return;

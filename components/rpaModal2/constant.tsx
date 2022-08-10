@@ -18,6 +18,7 @@ export const OptsTipMap: any = {
   [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行",
   [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中",
   [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中",
+  [RPAProcess.RUNING + RpaItemStatus.SUCCESS]: "执行成功",
   [RPAProcess.END + RpaItemStatus.SUCCESS]: "执行成功",
   [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败",
 }

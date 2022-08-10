@@ -704,6 +704,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       visible={config.visible}
       footer={null}
       width={1000}
+      style={{ top: 200 }}
     >
       {process === RPAProcess.CHECK_DONE && showNotice && <Alert message="检查到部分环境/账号不可使用，建议优化后再执行" type="warning" showIcon />}
       <div className="rpa-table">

@@ -24,14 +24,17 @@ export default (props: {
 }) => {
   const [logData, setLogData] = useState<logType>({});
   const logContent = useRef<HTMLDivElement | null>(null);
-  const [run, setRun] = useState<boolean>(true);
+  const [run, setRun] = useState<boolean>(true);//控制只监听一次
+  // const [toBtoom, setToBtoom] = useState<boolean>(true);//控制只监听一次
+
   const maxSize = 200;
   const closeHandle = () => {
     props.onClose();
   }
 
   useEffect(() => {
-    console.log("日志-初始化");
+    // logContent.current?.addEventListener("mouseenter", mouseenter)
+    // logContent.current?.addEventListener("mouseleave", mouseleave)
     return () => {
       console.log("日志-销毁");
     }
@@ -69,9 +72,9 @@ export default (props: {
 
 
   useEffect(() => {
-    if (logContent.current) {
-      logContent.current.scrollTop = logContent.current?.scrollHeight;
-    }
+    // if (logContent.current) {
+    //   logContent.current.scrollTop = logContent.current?.scrollHeight;
+    // }
   }, [logData])
 
   let fileName = useMemo(() => {
@@ -139,6 +142,7 @@ export default (props: {
   return <Modal
     wrapClassName="journal-modal"
     width={1000}
+    style={{ top: 200 }}
     title={Title}
     onCancel={() => { closeHandle() }}
     mask={false}

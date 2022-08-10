@@ -36,12 +36,12 @@
         background-size: cover;
         cursor: pointer;
         margin-left: 10px;
-  
+
         &:hover {
           opacity: .8;
         }
       }
-  
+
       .close {
         background-image: url(./images/close.png);
         width: 24px;
@@ -49,9 +49,11 @@
       }
     }
   }
-  .rpa-log-content{
+
+  .rpa-log-content {
     position: relative;
   }
+
   .ant-modal-body {
     padding: 4px 0px 0px 0px;
   }
@@ -64,21 +66,26 @@
       color: #242833;
       margin-bottom: 16px;
     }
+
     width: 100%;
     max-height: 300px;
     overflow-x: hidden;
     overflow-y: auto;
     scroll-behavior: smooth;
+
     .scroll {
       width: 100%;
       min-height: 300px;
       position: relative;
-      p{
+
+      p {
         margin: 0;
       }
+
       .item {
         padding: 4px 24px;
         display: flex;
+
         .time {
           flex: 0 0 150px;
           font-weight: 400;
@@ -93,11 +100,13 @@
           line-height: 22px;
           color: #242833;
           padding-left: 8px;
-          &.info{
+
+          &.info {
             color: #1890ff;
           }
-          &.error{
-            color:#F86140;
+
+          &.error {
+            color: #F86140;
           }
         }
       }
@@ -113,26 +122,34 @@
       height: 36px;
     }
   }
+
+  .journal-content {
+    overflow-y: overlay;
+
+    &:hover::-webkit-scrollbar {
+      width: 6px;
+    }
+  }
+
   /*---滚动条大小--*/
-::-webkit-scrollbar {
-  width: 0px;
-  height: 4px;
-}
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 4px;
+  }
 
-/*---滚动条默认显示样式--*/
-::-webkit-scrollbar-thumb {
-  background-color: #c0c0c0;
-  border-radius: 4px;
-}
+  /*---滚动条默认显示样式--*/
+  ::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 4px;
+  }
 
-/*---鼠标点击滚动条显示样式--*/
-::-webkit-scrollbar-thumb:hover {
-  background-color: #aaa;
-}
+  /*---鼠标点击滚动条显示样式--*/
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+  }
 
-/* 滑轨两头的监听按钮颜色 */
-::-webkit-scrollbar-corner {
-  display: none;
+  /* 滑轨两头的监听按钮颜色 */
+  ::-webkit-scrollbar-corner {
+    display: none;
+  }
 }
-}
-

@@ -72,7 +72,7 @@ export function runScript(params: Function | params, opts?: options): PromiseX<r
         //关闭对应的socket;
         eventBus.emit("send", envId, { type: "command", data: { value: "stop" } });
         socket?.stop?.();
-        c();
+        c("取消请求");
         stop = true;
         //取消运行关闭环境
         shopviewLauncherApi.closeEnv(envId);

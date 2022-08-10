@@ -15,6 +15,7 @@ export enum RpaItemStatus {
 
 export const OptsTipMap: any = {
   [RPAProcess.CHECKING + RpaItemStatus.LOADING]: "检查中",
+  [RPAProcess.CHECKING + RpaItemStatus.SUCCESS]: "可执行",
   [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行",
   [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中",
   [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中",

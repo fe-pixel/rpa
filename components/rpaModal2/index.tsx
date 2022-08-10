@@ -28,7 +28,6 @@ const openRpaModal = (config: IRPAConfig) => {
   let key = config.key || "defalut";
   const container = getContainer(key);
   key && (container.id = key);
-
   let containerDom: RootX;
   if (key in containerDomMap) {
     containerDom = containerDomMap[key];

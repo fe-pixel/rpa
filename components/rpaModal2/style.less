@@ -59,7 +59,7 @@
     position: relative;
     border: 1px solid #D7DBE7;
     border-radius: 4px;
-    margin-bottom: 15px;
+    margin-bottom: 28px;
     &-content {
       position: relative;
       transform: translateZ(0);
@@ -203,23 +203,20 @@
       }
     }
   }
-  .notice{
-    font-size: 14px;
-    color: #474F5E;
-    margin-bottom: 24px;
-  }
+ 
 
   .hide{
     display: none;
   }
-
-
-  .btn-bar {
-    width: 100%;
-    
-    display: flex;
-    justify-content: space-between;
+.footer{
+  display: flex;
+  justify-content: space-between;
+  line-height: 36px;
+  .notice{
+    font-size: 14px;
+    color: #474F5E;
   }
+}
 
   //ant重置
   .ant-alert-warning {
@@ -229,6 +226,17 @@
     color: #242833;
     margin-bottom: 20px;
   }
+  .ant-btn[disabled] {
+    background: #87b0ff;
+    border-color: #87b0ff;
+    color: #fff;
+  }
+  .ant-btn-primary[disabled], .ant-btn-primary[disabled]:hover, .ant-btn-primary[disabled]:focus, .ant-btn-primary[disabled]:active{
+    background: #87b0ff;
+    border-color: #87b0ff;
+    color: #fff;
+  }
+
   .ant-checkbox{
     .ant-checkbox-inner{
       border-radius: 4px;
@@ -244,5 +252,27 @@
   }
   .rc-virtual-list-scrollbar-thumb{
     background-color: #c0c0c0!important;
+  }
+  
+}
+.rpa_closeModal{
+  .ant-modal-confirm-body{
+    .ant-modal-confirm-content{
+      color:#474F5E
+    }
+  }
+  
+  .ant-modal-confirm-btns{
+    .ant-btn{
+      width: 100px;
+      height: 36px;
+      margin-left: 12px;
+      border-radius: 4px;
+      &.ant-btn-primary{
+        background: #F86140;
+        border-color: #F86140;
+      }
+    }
+
   }
 }

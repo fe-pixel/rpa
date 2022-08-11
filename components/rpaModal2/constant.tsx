@@ -34,6 +34,8 @@ export const RpaItemStatusMap: any = {
 
 export interface IRPAConfig {
   key?: string,//是否状态保持的标识
+  autoExecute?: boolean;//是否自动执行 默认false
+  autoClose?: boolean,//是否执行完自动关闭 默认false
   title?: string;//标题
   data: IRpaItem[];//脚本数据
   visible?: boolean;//是否显示

@@ -77,6 +77,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     isDev: false
   });
 
+  const [modalInstance, setModalInstance] = useState<any>(null);
+
   useEffect(() => {
     console.log("运行");
     let result = initData();
@@ -98,12 +100,30 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         break;
       case RPAProcess.CHECK_DONE:
         config.onCheckDone?.();
+        //自动运行
+        if (config.autoExecute) {
+          if (runBtnDisabled) {
+            setProcess(RPAProcess.END);
+            return;
+          }
+          //运行回调函数
+          config.onBeforeRuning?.();
+          //修改状态 
+          setProcess(RPAProcess.RUNING);
+          executeScript();
+        }
         break;
       case RPAProcess.RUNING:
         config.onRuning?.();
         break;
       case RPAProcess.END:
         config.onRunComplete?.(returnResult);
+        //自动关闭
+        if (config.autoClose) {
+          console.log("自动关闭");
+          config.close?.();
+        }
+        modalInstance?.destroy();
         break;
       default:
         break;
@@ -305,10 +325,13 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   //停止http请求
   function stopHttpConfirm(okCb?: Function) {
-    Modal.confirm({
-      title: '提示',
-      icon: <ExclamationCircleOutlined />,
-      content: '确定停止rpa的执行?',
+    let modal = Modal.confirm({
+      wrapClassName: "rpa_closeModal",
+      mask: false,
+      maskClosable: false,
+      title: '确认关闭执行任务吗？',
+      icon: <ExclamationCircleFilled style={{ color: '#F86140' }} />,
+      content: '关闭后正在执行的任务将自动结束，监控任务下次进入可重新开启',
       cancelText: "取消",
       okText: "确定",
       onOk() {
@@ -316,6 +339,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         okCb && okCb();
       }
     });
+    setModalInstance(modal);
   }
   //停止http请求
   function stopHttp() {
@@ -738,17 +762,15 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           <div style={{ textAlign: "center", color: "#ccc" }}>暂无数据~</div>
         }
       </div>
-      <div className="notice">
-        {`执行次数：${setting.executeNumber}｜执行间隔：${setting.interval}秒｜最大实例数：${setting.limit}｜开发者模式：${setting.isDev ? "启用" : "停用"}`}
-      </div>
-      <div className="btn-bar">
-        <div>
-          <Button className={process !== RPAProcess.CHECK_DONE ? "hide" : ""}
+      <div className="footer">
+        <div className="notice">
+          {`执行次数：${setting.executeNumber}｜执行间隔：${setting.interval}秒｜最大实例数：${setting.limit}｜开发者模式：${setting.isDev ? "启用" : "停用"}`}
+        </div>
+        <div className="btn-bar">
+          <Button style={{ marginRight: 16 }} className={process !== RPAProcess.CHECK_DONE ? "hide" : ""}
             onClick={() => openSetModal()} >
             执行设置
           </Button>
-        </div>
-        <div>
           <ConfigProvider autoInsertSpaceInButton={false}>
             {process < RPAProcess.RUNING &&
               <Button type="primary" onClick={() => onRunRpa()} disabled={runBtnDisabled} >执行</Button>
@@ -759,12 +781,13 @@ const RpaTasksModal = (config: IRPAConfigX) => {
               </Button>
             }
             {process === RPAProcess.END &&
-              <Button type="primary" onClick={() => onRunRpa()} disabled={runBtnDisabled} >
+              <Button type="primary" onClick={() => onRunRpa()} >
                 重新执行
               </Button>}
           </ConfigProvider>
         </div>
       </div>
+
     </Modal >
   </>
 }

@@ -83,7 +83,10 @@ let envArr = [
   envArr = await getEnvIds(100);
 })()
 
-export let envError = () => ({
+export let setting = () => ({
+  autoExecute: true,
+  autoClose: true,
+  visible: false,
   key: "A",
   title: "我的测试title",
   data: [

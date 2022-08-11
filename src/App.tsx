@@ -203,8 +203,8 @@ function App() {
 
   return (
     <div style={{ padding: "50px 150px" }}>
-      <h3>环境占用bug测试</h3>
-      <Button onClick={() => onClick2("envError")}>触发</Button>
+      <h3>配置项测试</h3>
+      <Button onClick={() => onClick2("setting")}>触发</Button>
       <h3>环境占用bug测试-同步执行</h3>
       <Button onClick={() => envPlaceholder()}>触发</Button>
       <h3>v.2.0 压测2k环境</h3>
@@ -280,8 +280,6 @@ function App() {
 }
 
 export default App
-
-
 
 async function getEnvIds(count: number = 1) {
   let res = await searchEnvs({

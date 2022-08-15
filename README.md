@@ -13,6 +13,7 @@ onCheckDone: ()=>{};//检测完成
 onRuning: ()=>{};//运行中
 onRunComplete: ()=>{};//全部完成后触发回调
 onMini:()=>{},
+group:"",
 data:[
   {
     envId:"9186931228077920908",//环境id

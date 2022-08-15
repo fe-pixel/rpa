@@ -82,6 +82,212 @@ let envArr = [
 ; (async () => {
   envArr = await getEnvIds(100);
 })()
+export let setting2 = () => ({
+  executeNumber: 3,
+  interval: 8,
+  limit: 1,
+  isDev: true,
+  group: "setting1",
+  key: "B",
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[3],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "manualLoginScript": {
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+})
+
+export let setting1 = () => ({
+  executeNumber: 2,
+  interval: 10,
+  limit: 2,
+  isDev: true,
+  group: "setting1",
+  key: "C",
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[0],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "manualLoginScript": {
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+})
+export let settingShow = () => ({
+  autoExecute: true,
+  autoClose: true,
+  visible: true,
+  key: "A",
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[0],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": logDemo,
+        "args": {
+          log: "autoLoginScript-log-2"
+        }
+      },
+      "manualLoginScript": {
+        "runScript": executeFailFN,
+        "args": {
+          log: "manualLoginScript-log"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-1-1"
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": logDemo,
+          "args": {
+            log: "script-log-2-1"
+          }
+        }
+      ]
+    }
+  ],
+  // onClose?: Function;//关闭回调
+  // onChecking?: Function;//检测中
+  // onCheckDone?: Function;//检测完成
+  // onRuning?: Function;//运行中
+  // onRunComplete?: Function;//全部完成后触发回调
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+})
 
 export let setting = () => ({
   autoExecute: true,
@@ -152,6 +358,7 @@ export let pressureTest = () => {
   return {
     key: "A",
     title: "我的测试title",
+    group: "setting1",
     data: envArr.map(v => ({
       "envId": v,
       "autoLoginScript": {

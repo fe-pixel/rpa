@@ -203,8 +203,12 @@ function App() {
 
   return (
     <div style={{ padding: "50px 150px" }}>
-      <h3>配置项测试</h3>
-      <Button onClick={() => onClick2("setting")}>触发</Button>
+      <h3>配置group</h3>
+      <Button onClick={() => onClick2("setting1")}>触发</Button>
+      <Button onClick={() => onClick2("setting2")}>触发</Button>
+      <h3>隐藏执行</h3>
+      <Button onClick={() => onClick2("setting")}>隐藏触发</Button>
+      <Button onClick={() => onClick2("settingShow")}>显示</Button>
       <h3>环境占用bug测试-同步执行</h3>
       <Button onClick={() => envPlaceholder()}>触发</Button>
       <h3>v.2.0 压测2k环境</h3>

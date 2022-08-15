@@ -1,4 +1,5 @@
 import { CheckCircleFilled, ExclamationCircleFilled } from "@ant-design/icons";
+import { getUid } from "../../utils";
 
 export enum RPAProcess {
   CHECKING = 1,//检测中
@@ -36,6 +37,11 @@ export interface IRPAConfig {
   key?: string,//是否状态保持的标识
   autoExecute?: boolean;//是否自动执行 默认false
   autoClose?: boolean,//是否执行完自动关闭 默认false
+  group?: string,//组别，同一组别并发在一起
+  executeNumber?: number,//执行次数
+  interval?: number,//执行间隔
+  limit?: number,//执行次数
+  isDev?: boolean,//是否开发模式
   title?: string;//标题
   data: IRpaItem[];//脚本数据
   visible?: boolean;//是否显示
@@ -81,4 +87,16 @@ export type result = {
   data: any,
   message: string,
   isKeepOpen?: boolean //运行浏览器是否保持窗口打开
+}
+
+export const winGid = getUid();
+export const groupMap: { [gid: string]: number } = {
+
+};
+
+export const defaultConfig = {
+  executeNumber: 1,
+  interval: 0,
+  limit: 3,
+  isDev: false
 }

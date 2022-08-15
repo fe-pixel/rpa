@@ -83,9 +83,9 @@ const openRpaModal = (config: IRPAConfig) => {
     }
     //最小化恢复
     if (key in containerDomMap) {
-      modalProps.visible = !containerDomMap[key].visible;
+      modalProps.visible = config.visible ?? !containerDomMap[key].visible;
       containerDomMap[key].render(<RpaTasksModal {...modalProps} />);
-      containerDomMap[key].visible = !containerDomMap[key].visible;
+      containerDomMap[key].visible = config.visible ?? !containerDomMap[key].visible;
       return;
     }
     containerDom.render(<RpaTasksModal {...modalProps} />);

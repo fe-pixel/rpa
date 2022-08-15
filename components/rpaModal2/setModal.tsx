@@ -28,12 +28,15 @@ export default (props: { visible: boolean, setting: Tsetting, onSave: Function, 
     return () => {
       console.log("销毁-setting");
     }
-  }, [])
+  }, []);
+  useEffect(() => {
+    setSetting({ ...props.setting });
+    form.setFieldsValue({ ...props.setting });
+  }, [props.setting]);
   const closeHandle = () => {
     props.onClose();
   }
   const onSave = () => {
-    console.log("save-setting", setting);
     props.onSave({ ...setting })
     closeHandle();
   }

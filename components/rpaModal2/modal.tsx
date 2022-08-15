@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, MouseEventHandler, useMemo } from "react";
 import { Button, Modal, ConfigProvider, Checkbox, message, Alert } from "antd";
-import { IRPAConfig, IRpaScript, IRpaItem, TReturnResult, RPAProcess, RpaItemStatus, RpaItemStatusMap, OptsTipMap } from './constant'
+import { IRPAConfig, IRpaScript, IRpaItem, TReturnResult, RPAProcess, RpaItemStatus, RpaItemStatusMap, OptsTipMap, defaultConfig, winGid, groupMap } from './constant'
 import { runScript } from './../../rpa/ui'
 import './style.less'
 import List from 'rc-virtual-list';
@@ -8,9 +8,10 @@ import SetModal from "./setModal";
 import LogModal from "./logModal";
 import { MinusOutlined, SettingOutlined, CheckCircleFilled, ExclamationCircleFilled, HistoryOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { check, init } from "./common";
-import { cloneDeep, throttle, times } from "lodash";
-import { compose, stepTime } from "../../utils";
+import { cloneDeep, throttle } from "lodash";
+import { compose, getUid, stepTime } from "../../utils";
 import { setConcurrent } from "../../rpa/common";
+import eventBus from "../../utils/EventBus";
 
 
 export type Tsetting = {
@@ -70,20 +71,34 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const [isAllCheck, setIsAllCheck] = useState<boolean>(false);
 
+  const [groupUid, setGroupUid] = useState<string>(getUid());
+
   const [setting, setSetting] = useState<Tsetting>({
-    executeNumber: 1,
-    interval: 0,
-    limit: 3,
-    isDev: false
+    executeNumber: defaultConfig.executeNumber,
+    interval: defaultConfig.interval,
+    limit: defaultConfig.limit,
+    isDev: defaultConfig.isDev
   });
 
   const [modalInstance, setModalInstance] = useState<any>(null);
 
   useEffect(() => {
     console.log("运行");
-    let result = initData();
+    //设置项赋值
+    let setting = initSetting();
+    let groupUid = initGroup(setting);
+    let result = initData(setting, groupUid);
     runCheck(result);
+    function Fn(groupUid: any, limit: any) {
+      if (!(groupUid in groupMap)) return;
+      if (setting.limit === limit) return;
+      groupMap[groupUid] = limit;
+      setSetting({ ...setting, limit });
+      setConcurrent({ group: groupUid, limit: limit });
+    }
+    eventBus.on(`updateLimit-${groupUid}`, Fn);
     return () => {
+      eventBus.off(`updateLimit-${groupUid}`, Fn);
       console.log("销毁");
     }
   }, []);
@@ -120,7 +135,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         config.onRunComplete?.(returnResult);
         //自动关闭
         if (config.autoClose) {
-          console.log("自动关闭");
           config.close?.();
         }
         modalInstance?.destroy();
@@ -132,40 +146,60 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   useEffect(() => {
     if (config.isStop) {
-      console.log("执行关闭");
       stopHttp();
       config.close?.();
     }
   }, [config]);
 
   function reSet() {
-    setModalTitle(config.title || "RPA任务")
+    setModalTitle(config.title || "RPA任务");
     let result = initData();
     runCheck(result);
     setReturnResult({});
   }
 
+  function initGroup(settingP: Tsetting): string {
+    //初始化group的名字  为了实现groupMap全局穿透
+    //group
+    let group = "";
+    if (config.group) {
+      group = `${winGid}-${config.group}`;
+      groupMap[group] = settingP.limit;
+      eventBus.emit(`updateLimit-${group}`, group, settingP.limit);
+    } else {
+      group = getUid();
+    }
+    setConcurrent({ group: group, limit: settingP?.limit });
+    setGroupUid(group);
+    //设置并发数
+    return group;
+  }
+  function initSetting() {
+    let settingOptions = Object.assign({}, defaultConfig, config);
+    let { executeNumber, interval, limit, isDev } = settingOptions;
+    setSetting({ executeNumber, interval, limit, isDev });
+    return { executeNumber, interval, limit, isDev };
+  }
+
   //点击配置报错后更新data值
   useEffect(() => {
     if (process !== RPAProcess.CHECK_DONE) return;
-    if (data[0].limit !== setting.limit) {
-      setConcurrent({ group: data[0].group, limit: setting.limit });
-    }
+    // if (data[0].limit !== setting.limit) {
+    //   setConcurrent({ group: data[0].group, limit: setting.limit });
+    // }
 
     for (const item of data) {
       item.executeNumber = setting.executeNumber;
       item.limit = setting.limit;
-      //在最后的时候合并
-      // for (const scriptItem of item.script) {
-      //   scriptItem.options = scriptItem.options || {};
-      //   scriptItem.options = Object.assign({}, scriptItem.options, { headless: setting.isDev ? false : true });
-      // }
     }
     setData([...data]);
   }, [setting]);
 
-  function initData() {
-    let result = init(config.data, setting);
+  function initData(settingP?: Tsetting, groupP?: string) {
+    let settingTemp = settingP ?? setting;
+    let groupTemp = groupP ? groupP : groupUid;
+
+    let result = init(config, settingTemp, groupTemp);
     setModalTitle(config.title || (result.length === 1 ? "RPA任务" : "RPA任务列表"));
     setData(result);
     autoRunBtnDisabled(result);
@@ -603,21 +637,21 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const closeSetModal = () => {
     setShowSetModal(false)
-    config.update?.({ visible: true })
+    // config.update?.({ visible: true })
   }
   const openSetModal = () => {
     setShowSetModal(true)
-    config.update?.({ visible: false })
+    // config.update?.({ visible: false })
   }
   const closeLogModal = () => {
     setShowLogModal(false);
-    config.update?.({ visible: true })
+    // config.update?.({ visible: true })
   }
   const showLogModal = (e: any, index: number) => {
     e.stopPropagation();
     setLogIndex(index);
     setShowLogModal(true);
-    config.update?.({ visible: false })
+    // config.update?.({ visible: false })
   }
 
   const RpaItem = (item: IRpaItemX, index: number) => {
@@ -691,6 +725,14 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       </div>
     );
   }
+  const updateSetting = (settingTemp: Tsetting) => {
+    setSetting(settingTemp);
+    if (groupUid in groupMap) {
+      if (groupMap[groupUid] !== settingTemp.limit) {
+        eventBus.emit(`updateLimit-${groupUid}`, groupUid, settingTemp.limit);
+      }
+    }
+  }
   const Title = <div className="title">
     <span>{modalTitle}</span>
     <div className="opts">
@@ -715,7 +757,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       setTipText={setTipText}
       onClose={() => closeLogModal()} />
 
-    <SetModal visible={showSetModal} setting={setting} onSave={setSetting} onClose={() => closeSetModal()}></SetModal>
+    <SetModal visible={showSetModal} setting={setting} onSave={updateSetting} onClose={() => closeSetModal()}></SetModal>
 
     {/* @ts-ignore */}
     <Modal
@@ -762,7 +804,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           <div style={{ textAlign: "center", color: "#ccc" }}>暂无数据~</div>
         }
       </div>
-      <div className="footer">
+      <div className="rpa-footer">
         <div className="notice">
           {`执行次数：${setting.executeNumber}｜执行间隔：${setting.interval}秒｜最大实例数：${setting.limit}｜开发者模式：${setting.isDev ? "启用" : "停用"}`}
         </div>

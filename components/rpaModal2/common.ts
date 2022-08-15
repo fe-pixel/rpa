@@ -3,15 +3,13 @@ import { cloneDeep } from "lodash";
 import { envRecover, runScript } from './../../rpa/ui'
 import { getUid } from './../../utils'
 
-import { IRpaItem, RpaItemStatus, RPAProcess } from "./constant";
+import { IRPAConfig, IRpaItem, RpaItemStatus, RPAProcess } from "./constant";
 import { IRpaItemX, Tsetting } from "./modal";
 
-export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
-  let rpaItems: IRpaItem[] = cloneDeep(data);
+export function init(config: IRPAConfig, settingValue: Tsetting, group: string): IRpaItemX[] {
+  let rpaItems: IRpaItem[] = cloneDeep(config.data);
   let result: IRpaItemX[] = [];
-  let uid = getUid();
-  //设置并发数
-  setConcurrent({ group: uid, limit: settingValue.limit });
+
   rpaItems?.length && rpaItems.map((item: IRpaItem, i: number) => {
     //参数检测
     if (!item.envId) {
@@ -33,7 +31,7 @@ export function init(data: IRpaItem[], settingValue: Tsetting): IRpaItemX[] {
       tipText: "正在检测...",
       checked: false,
       scriptName: item.autoLoginScript.scriptName || "自动登录脚本",
-      group: uid,
+      group: group,
       index: i,
       ...settingValue,
       step: 0,

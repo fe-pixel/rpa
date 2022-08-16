@@ -37,7 +37,7 @@ export interface IRPAConfig {
   key?: string,//是否状态保持的标识
   autoExecute?: boolean;//是否自动执行 默认false
   autoClose?: boolean,//是否执行完自动关闭 默认false
-  group?: string,//组别，同一组别并发在一起
+  group?: string,//组别，同一组别并发在一起，同一应用受影响
   executeNumber?: number,//执行次数
   interval?: number,//执行间隔
   limit?: number,//执行次数

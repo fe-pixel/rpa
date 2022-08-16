@@ -6,6 +6,11 @@
 key:"A",
 title: "我是标题";
 visible: true;
+group?: string,//组别，同一组别并发在一起，全局受影响
+executeNumber?: number,//执行次数
+interval?: number,//执行间隔
+limit?: number,//执行次数
+isDev?: boolean,//是否开发模式
 onBeforeRuning:()=>{};
 onClose:()=>{};
 onChecking: ()=>{};//检测中
@@ -13,7 +18,6 @@ onCheckDone: ()=>{};//检测完成
 onRuning: ()=>{};//运行中
 onRunComplete: ()=>{};//全部完成后触发回调
 onMini:()=>{},
-group:"",
 data:[
   {
     envId:"9186931228077920908",//环境id

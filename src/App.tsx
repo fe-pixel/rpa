@@ -195,14 +195,81 @@ function App() {
             message: "ok",
           },
           group: "A",
-          options: { log: false, headless: true }
+          options: { log: false, headless: false }
         }
       );
     }
   }
+  const runEnv = async () => {
+    let ids = await getEnvIds(5);
+    runScript(
+      {
+        script: demoFn,
+        envId: ids[0],
+        args: {
+          code: 0,
+          data: "1",
+          message: "ok",
+        },
+        group: "A",
+        options: { log: false, headless: false },
+        sessionId: "A"
+      }
+    );
+    // setTimeout(() => {
+    //   runScript(
+    //     {
+    //       script: demoFn,
+    //       envId: ids[0],
+    //       args: {
+    //         code: 0,
+    //         data: "1",
+    //         message: "ok",
+    //       },
+    //       group: "A",
+    //       options: { log: false, headless: true },
+    //       sessionId: "A"
+    //     }
+    //   );
+    // }, 3000)
+  }
+  const openBaidu = async () => {
+    let ids = await getEnvIds(1);
+    runScript(
+      {
+        script: async function ({ driver }) {
+          let start = Date.now();
+          const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
+          setInterval(() => {
+            log((Date.now() - start) / 1000);
+          }, 1000)
+          await driver.get("https://www.baidu.com/");
+          await driver.sleep(20000);
+          return "成功"
+        },
+        envId: ids[0],
+        args: {
+          code: 0,
+          data: "2",
+          message: "ok",
+        },
+        group: "A",
+        options: { log: false, headless: false },
+        sessionId: "CC"
+      }
+    );
+    eventBus?.on("message", (res: any, params) => {
+      console.log(res.data.text);
+    })
+
+  }
 
   return (
     <div style={{ padding: "50px 150px" }}>
+      <h3>环境占用</h3>
+      <Button onClick={() => runEnv()}>触发</Button>
+      <h3>环境休眠</h3>
+      <Button onClick={() => openBaidu()}>触发</Button>
       <h3>配置group</h3>
       <Button onClick={() => onClick2("setting1")}>触发</Button>
       <Button onClick={() => onClick2("setting2")}>触发</Button>

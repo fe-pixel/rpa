@@ -91,6 +91,8 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
         item.accountName = accountName;
       }
     }
+    //更新环境名称和账号
+    setData([...rpaItems]);
     //判断是否是跳过执行
     let loginScript = item.autoLoginScript;
     let script = loginScript.runScript;

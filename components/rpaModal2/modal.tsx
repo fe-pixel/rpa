@@ -40,6 +40,7 @@ export interface IRpaItemX extends IRpaItem {
   index: number,//当前的下标
   step: number,//当前脚本执行的下标
   executeNumber: number,
+  alreadyExecuteNumber: number,//已经执行次数
   interval: number,
   limit: number,
   isDev: boolean,
@@ -291,7 +292,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
             data[item.index] = item;
             setData([...data]);
           }, () => {
+            if (item.status === RpaItemStatus.FAIL) return;
             item.executeNumber--;
+            item.alreadyExecuteNumber++;
             data[item.index] = item;
             setData([...data]);
             next();
@@ -299,6 +302,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           return;
         } else {
           item.executeNumber--;
+          item.alreadyExecuteNumber++;
           data[item.index] = item;
           setData([...data]);
           next();
@@ -331,7 +335,12 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     //循环次数
     //间隔时间
     let executeNumber = item.executeNumber || 1;
-    let fns = new Array(executeNumber * item.script.length).fill(scriptUnit);
+    let fns = null;
+    if (item.executeNumber === Infinity) {
+      fns = new Array(9999).fill(scriptUnit);
+    } else {
+      fns = new Array(executeNumber * item.script.length).fill(scriptUnit);
+    }
     const finalFn = compose(fns);
     finalFn(item);
   };
@@ -480,9 +489,13 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   }, [data]);
 
 
-  let fmtTimeInterval = useCallback((status: number, executeNumber: number, interval: number) => {
-    let currExcuteNumber = process < RPAProcess.RUNING ? executeNumber : executeNumber - 1;
-    let currExcuteNumberStr = `${setting.executeNumber - currExcuteNumber}/${setting.executeNumber}`;
+  let fmtTimeInterval = useCallback((item: IRpaItemX) => {
+    let { status, executeNumber, alreadyExecuteNumber, interval } = item;
+    let alreadyExecuteNumberStr = process < RPAProcess.RUNING ? alreadyExecuteNumber : alreadyExecuteNumber + 1;
+    let currExcuteNumberStr = `${alreadyExecuteNumberStr}/${setting.executeNumber}`;
+    if (executeNumber === Infinity) {
+      currExcuteNumberStr = `${alreadyExecuteNumberStr}/∞`;
+    }
     if (interval === 0) {
       return currExcuteNumberStr
     } else {
@@ -601,7 +614,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
             data[item.index] = item;
             setData([...data]);
           }, () => {
+            if (item.status === RpaItemStatus.FAIL) return;
             item.executeNumber--;
+            item.alreadyExecuteNumber++;
             data[item.index] = item;
             setData([...data]);
             _executeScript(item);
@@ -609,6 +624,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           return;
         } else {
           item.executeNumber--;
+          item.alreadyExecuteNumber++;
           data[item.index] = item;
           setData([...data]);
           _executeScript(item);
@@ -674,7 +690,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           </div>
           {setting.executeNumber > 1 &&
             <div className="sctiptNumber">
-              {fmtTimeInterval(item.status, item.executeNumber, item.interval)}
+              {fmtTimeInterval(item)}
             </div>
           }
 
@@ -806,7 +822,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       </div>
       <div className="rpa-footer">
         <div className="notice">
-          {`执行次数：${setting.executeNumber}｜执行间隔：${setting.interval}秒｜最大实例数：${setting.limit}｜开发者模式：${setting.isDev ? "启用" : "停用"}`}
+          {`执行次数：${setting.executeNumber === Infinity ? "无限次" : setting.executeNumber}｜执行间隔：${setting.interval}秒｜最大实例数：${setting.limit}｜开发者模式：${setting.isDev ? "启用" : "停用"}`}
         </div>
         <div className="btn-bar">
           <Button style={{ marginRight: 16 }} className={process !== RPAProcess.CHECK_DONE ? "hide" : ""}

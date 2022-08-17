@@ -267,6 +267,8 @@ function App() {
   return (
     <div style={{ padding: "50px 150px" }}>
       <h3>环境占用</h3>
+      <Button onClick={() => onClick2("loop")}>无限次</Button>
+      <h3>环境占用</h3>
       <Button onClick={() => runEnv()}>触发</Button>
       <h3>环境休眠</h3>
       <Button onClick={() => openBaidu()}>触发</Button>

@@ -82,6 +82,76 @@ let envArr = [
 ; (async () => {
   envArr = await getEnvIds(100);
 })()
+
+export let loop = () => ({
+  executeNumber: Infinity,
+  interval: 10,
+  limit: 1,
+  isDev: false,
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[0],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "manualLoginScript": {
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本2",
+            message: "666",
+          }
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+})
+
 export let setting2 = () => ({
   executeNumber: 3,
   interval: 8,
@@ -358,7 +428,6 @@ export let pressureTest = () => {
   return {
     key: "A",
     title: "我的测试title",
-    group: "setting1",
     data: envArr.map(v => ({
       "envId": v,
       "autoLoginScript": {

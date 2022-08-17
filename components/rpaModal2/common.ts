@@ -1,7 +1,6 @@
 import { setConcurrent, getEnvItem } from "./../../rpa/common";
 import { cloneDeep } from "lodash";
 import { envRecover, runScript } from './../../rpa/ui'
-import { getUid } from './../../utils'
 
 import { IRPAConfig, IRpaItem, RpaItemStatus, RPAProcess } from "./constant";
 import { IRpaItemX, Tsetting } from "./modal";
@@ -36,7 +35,8 @@ export function init(config: IRPAConfig, settingValue: Tsetting, group: string):
       ...settingValue,
       step: 0,
       btnLoading: false,
-      startTime: new Date()
+      startTime: new Date(),
+      alreadyExecuteNumber: 0,
     };
     //设置下并发数
     result.push(runResult);

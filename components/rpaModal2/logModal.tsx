@@ -142,7 +142,7 @@ export default (props: {
   return <Modal
     wrapClassName="journal-modal"
     width={1000}
-    style={{ top: 200 }}
+    style={{ top: 200, minWidth: 1000 }}
     title={Title}
     onCancel={() => { closeHandle() }}
     mask={false}

@@ -75,7 +75,7 @@ export default (props: { visible: boolean, setting: Tsetting, onSave: Function, 
   //@ts-expect-error
   return <Modal
     wrapClassName="set-modal"
-    style={{ top: 200 }}
+    style={{ top: 200, minWidth: 1000 }}
     width={1000}
     title={Title}
     onCancel={() => { closeHandle() }}

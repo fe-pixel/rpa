@@ -266,6 +266,9 @@ function App() {
 
   return (
     <div style={{ padding: "50px 150px" }}>
+      <h3>简单配置</h3>
+      <Button onClick={() => onClick2("simpleConfig")}>简单配置</Button>
+      <Button onClick={() => onClick2("simpleConfig2k")}>多个环境同时执行简单模式</Button>
       <h3>环境占用</h3>
       <Button onClick={() => onClick2("loop")}>无限次</Button>
       <h3>环境占用</h3>

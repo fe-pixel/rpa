@@ -2,6 +2,14 @@
   "key": "A",
   "title": "我是标题",
   "visible": true,
+  "group": "groupName",
+  "executeNumber": 3,
+  "interval": 10,
+  "limit": 2,
+  "isDev": false,
+  "simple": true,
+  "autoExecute": false,
+  "autoClose": false,
   "data": [
     {
       "envId": "9186931228077920908",

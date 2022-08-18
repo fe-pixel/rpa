@@ -6,8 +6,8 @@ import './style.less'
 import List from 'rc-virtual-list';
 import SetModal from "./setModal";
 import LogModal from "./logModal";
-import { MinusOutlined, SettingOutlined, CheckCircleFilled, ExclamationCircleFilled, HistoryOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import { check, init } from "./common";
+import { MinusOutlined, SettingOutlined, CheckCircleFilled, ExclamationCircleFilled, HistoryOutlined } from "@ant-design/icons";
+import { check, simpleCheck, init } from "./common";
 import { cloneDeep, throttle } from "lodash";
 import { compose, getUid, stepTime } from "../../utils";
 import { setConcurrent } from "../../rpa/common";
@@ -45,8 +45,8 @@ export interface IRpaItemX extends IRpaItem {
   limit: number,
   isDev: boolean,
   script: IRpaScriptX[],
-  manualLoginScript: IRpaScriptX,
-  autoLoginScript: IRpaScriptX,
+  manualLoginScript?: IRpaScriptX,
+  autoLoginScript?: IRpaScriptX,
   startTime: Date
 }
 export interface IRpaScriptX extends IRpaScript {
@@ -209,12 +209,17 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   async function runCheck(result: IRpaItemX[]) {
     setProcess(RPAProcess.CHECKING);
-    let res = await check(result, setData);
+    let res = null;
+    if (config.simple) {
+      res = await simpleCheck(result, setData);
+    } else {
+      res = await check(result, setData);
+    }
     setProcess(RPAProcess.CHECK_DONE);
     autoRunBtnDisabled(res);
     //判断是全部成功还是部分成功
-    autoShowNotice(res);
-    autoAllCheck(res)
+    !config.simple && autoShowNotice(res);
+    autoAllCheck(res);
   }
   function autoShowNotice(res?: IRpaItemX[]) {
     let arr = res ? res : data;
@@ -388,8 +393,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   function stopHttp() {
     for (const item of data) {
       //关闭正在执行的登录脚本
-      item.autoLoginScript.cancel?.();
-      item.manualLoginScript.cancel?.();
+      item.autoLoginScript?.cancel?.();
+      item.manualLoginScript?.cancel?.();
       if (item.status !== RpaItemStatus.SUCCESS) {
         item.status = RpaItemStatus.FAIL;
         item.tipText = "已终止";
@@ -513,10 +518,10 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     item.btnLoading = true;
     //准备参数
     let runScriptItem = item.manualLoginScript;
-    let script = runScriptItem.runScript;
-    let args = runScriptItem.args || {};
+    let script = runScriptItem?.runScript || (() => { });
+    let args = runScriptItem?.args || {};
     let envId = item.envId;
-    let options = Object.assign({}, defaultOptions, runScriptItem.options ?? {}, { headless: false });
+    let options = Object.assign({}, defaultOptions, runScriptItem?.options ?? {}, { headless: false });
     let accountId = item?.accountId;
     let group = item?.group;
     let sessionId = item?.group + item?.envId + `-manualLoginScript`;
@@ -528,14 +533,14 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     });
 
     //把取消函数存储起来;
-    item.manualLoginScript.cancel = p.cancel;
+    item.manualLoginScript && (item.manualLoginScript.cancel = p.cancel);
 
     //更新视图
     data[item.index] = item;
     setData([...data]);
     let res = await p;
     //把原本的取消函数还原
-    item.manualLoginScript.cancel = undefined;
+    item.manualLoginScript && (item.manualLoginScript.cancel = undefined);
 
     item.btnLoading = false;
     if (res.code === 0) {
@@ -550,9 +555,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       //失败
       item.status = RpaItemStatus.FAIL;
       if (res.code === -1) {
-        item.tipText = res.message || "执行失败";
+        item.tipText = res.message || "登录失败";
       } else {
-        item.tipText = "执行失败";
+        item.tipText = "登录失败";
       }
     }
     data[item.index] = item;
@@ -715,11 +720,18 @@ const RpaTasksModal = (config: IRPAConfigX) => {
             }
             {/* 打开做登录 */}
             {([RPAProcess.CHECKING, RPAProcess.CHECK_DONE].includes(process)) &&
-              item.status === RpaItemStatus.FAIL &&
+              item.status === RpaItemStatus.FAIL && (!config.simple) &&
               <Button
                 onClick={() => { goOnLogin(item) }}
                 loading={item.btnLoading} >
                 打开</Button>
+            }
+            {/* 简单模式直接报错 */}
+            {([RPAProcess.CHECKING, RPAProcess.CHECK_DONE].includes(process)) &&
+              item.status === RpaItemStatus.FAIL && (config.simple) &&
+              <span className="error">
+                检测失败 <ExclamationCircleFilled ></ExclamationCircleFilled>
+              </span>
             }
             {/* 打开做继续执行 */}
             {([RPAProcess.RUNING].includes(process)) &&

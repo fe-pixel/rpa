@@ -14,15 +14,16 @@ export enum RpaItemStatus {
   WAITING
 };
 
+//tip 加个空格为了好看~
 export const OptsTipMap: any = {
-  [RPAProcess.CHECKING + RpaItemStatus.LOADING]: "检查中",
-  [RPAProcess.CHECKING + RpaItemStatus.SUCCESS]: "可执行",
-  [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行",
-  [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中",
-  [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中",
-  [RPAProcess.RUNING + RpaItemStatus.SUCCESS]: "执行成功",
-  [RPAProcess.END + RpaItemStatus.SUCCESS]: "执行成功",
-  [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败",
+  [RPAProcess.CHECKING + RpaItemStatus.LOADING]: "检查中 ",
+  [RPAProcess.CHECKING + RpaItemStatus.SUCCESS]: "可执行 ",
+  [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行 ",
+  [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中 ",
+  [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中 ",
+  [RPAProcess.RUNING + RpaItemStatus.SUCCESS]: "执行成功 ",
+  [RPAProcess.END + RpaItemStatus.SUCCESS]: "执行成功 ",
+  [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败 ",
 }
 export const RpaItemStatusMap: any = {
   [RpaItemStatus.WAITING]: "nomal",
@@ -34,6 +35,7 @@ export const RpaItemStatusMap: any = {
 
 
 export interface IRPAConfig {
+  simple?: boolean,//是否是简单模式  简单模式会跳过自动登录和手动登录
   key?: string,//是否状态保持的标识
   autoExecute?: boolean;//是否自动执行 默认false
   autoClose?: boolean,//是否执行完自动关闭 默认false
@@ -56,18 +58,18 @@ export interface IRPAConfig {
 
 export interface IRpaItem {
   envId: string;  //环境ID
-  accountId?: string;  //环境名字  会根据ID获取
-  autoLoginScript: IRpaScript,//自动登录脚本
-  manualLoginScript: IRpaScript,//手动登录脚本
+  accountId?: string;//账户ID  当前环境下绑定哪一个账号
+  autoLoginScript?: IRpaScript,//自动登录脚本
+  manualLoginScript?: IRpaScript,//手动登录脚本
   script: IRpaScript[],//运行业务脚本
 };
 
 export interface IRpaScript {
   scriptName: string;  //脚本名称
-  runScript: string | Function;
+  runScript: string | Function;//运行脚本
   args?: Object;  //脚本参数
+  //执行rpa的配置信息  log：是否开启console有效 默认false  headless:是否开启无头 true
   options?: { log?: boolean, headless?: boolean },
-  openUrl?: string; //当执行手动登录时配置的登录地址
 }
 
 interface IFn {

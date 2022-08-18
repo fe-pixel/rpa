@@ -83,6 +83,114 @@ let envArr = [
   envArr = await getEnvIds(100);
 })()
 
+export let simpleConfig2k = () => ({
+  title: "我的测试title",
+  simple: true,
+  data: envArr.map(v => ({
+    "envId": v,
+    "script": [
+      {
+        "scriptName": "脚本1",
+        "runScript": logDemo,
+        "args": {
+          log: "script-log-1-1"
+        }
+      },
+      {
+        "scriptName": "脚本2",
+        "runScript": logDemo,
+        "args": {
+          log: "script-log-2-1"
+        }
+      }
+    ]
+  })),
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  }
+})
+export let simpleConfig = () => ({
+  simple: true,
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[0],
+      "autoLoginScript": {
+        "scriptName": "自动登录",
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "manualLoginScript": {
+        "runScript": demoFn,
+        "args": {
+          code: 0,
+          data: "脚本1",
+          message: "666",
+        }
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本1",
+            message: "666",
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn,
+          "args": {
+            code: 0,
+            data: "脚本2",
+            message: "666",
+          }
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+    console.log("onBeforeRuning");
+  },
+  onChecking: () => {
+    console.log("onChecking");
+  },
+  onCheckDone: () => {
+    console.log("onCheckDone");
+  },
+  onRuning: () => {
+    console.log("onRuning");
+  },
+  onRunComplete: (result) => {
+    console.log("onRunComplete")
+    console.log("RPA任务执行结果", result)
+  },
+  onClose: () => {
+    console.log("onClose");
+  },
+})
+
 export let loop = () => ({
   executeNumber: Infinity,
   interval: 10,

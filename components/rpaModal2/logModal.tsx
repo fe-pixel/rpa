@@ -82,7 +82,7 @@ export default (props: {
 
   let fileName = useMemo(() => {
     if (props.data.length === 0) return "";
-    if (props.index === -1) return;
+    if (props.index === -1) return "";
     let time = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
     let item = props.data[props.index];
     return `${time}-${item.group}-${item.envId}`;

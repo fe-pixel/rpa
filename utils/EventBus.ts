@@ -44,5 +44,7 @@ class EventBus {
     return this;
   }
 }
-
-export default new EventBus(); 
+let eventBus = new EventBus();
+// //@ts-expect-error
+// window.eventBus = eventBus;
+export default eventBus; 

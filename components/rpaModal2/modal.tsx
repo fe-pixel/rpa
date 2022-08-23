@@ -83,6 +83,8 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const [modalInstance, setModalInstance] = useState<any>(null);
 
+  const [reSetLog, setReSetLog] = useState<any>(Date.now());
+
   useEffect(() => {
     console.log("运行");
     //设置项赋值
@@ -157,6 +159,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let result = initData();
     runCheck(result);
     setReturnResult({});
+    setReSetLog(Date.now())
   }
 
   function initGroup(settingP: Tsetting): string {
@@ -328,7 +331,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       } else {
         item.tipText = "执行失败";
       }
-
     }
     //每条记录加载完就重新渲染
     data[item.index] = item;
@@ -420,6 +422,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   useEffect(() => {
     //调试
+    // //@ts-expect-error
     // window.rpaData = data;
     if (process !== RPAProcess.RUNING) return;
     // // 点击执行之后，监测执行情况
@@ -768,7 +771,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       <div className="opt close" onClick={() => closeHandle()} ></div>
     </div>
   </div >
-  const setTipText = (envId: string, text: string) => {
+  const setTipText = useCallback((envId: string, text: string, data: any) => {
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
       if (item.envId === envId) {
@@ -776,9 +779,11 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       }
     }
     setData([...data]);
-  }
+  }, [data]);
   return <>
-    <LogModal visible={showLog}
+    <LogModal
+      key={reSetLog}
+      visible={showLog}
       index={logIndex}
       data={data}
       process={process}

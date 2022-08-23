@@ -37,37 +37,40 @@ export default (props: {
     // logContent.current?.addEventListener("mouseleave", mouseleave)
     return () => {
       console.log("日志-销毁");
+      eventBus.off("message", logMessage);
     }
   }, []);
+
+  function logMessage(log: any, opts: any) {
+    //过滤不是该弹框的message
+    if (opts.group !== props.data[0]?.group) return;
+    if (log.type != "log") return;
+    let value = log?.data?.text;
+    let type = log?.data?.level;
+    let time = log?.data?.time?.slice(0, log?.data?.time?.lastIndexOf("."));
+    time = formatDate(new Date(time), "yyyy-MM-dd HH:mm:ss");
+    let data = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
+    let fileName = `${data}-${opts.group}-${opts.envId}`;
+    logData[fileName] = logData[fileName] || [];
+    logData[fileName].push({ time, type, value });
+    //最大限制判断
+    if (logData[fileName].length > maxSize) {
+      logData[fileName].shift();
+    }
+    if (type === "info") {
+      props.setTipText(opts.envId, value, props.data);
+    }
+    if (type === "error") {
+      props.setTipText(props.index, value, props.data);
+    }
+    setLogData({ ...logData });
+  }
 
   useEffect(() => {
     if (!props.data.length) return;
     if (!run) return;
     setRun(false);
-    eventBus.on("message", (log: any, opts: any) => {
-      //过滤不是该弹框的message
-      if (opts.group !== props.data[0]?.group) return;
-      if (log.type != "log") return;
-      let value = log?.data?.text;
-      let type = log?.data?.level;
-      let time = log?.data?.time?.slice(0, log?.data?.time?.lastIndexOf("."));
-      time = formatDate(new Date(time), "yyyy-MM-dd HH:mm:ss");
-      let data = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
-      let fileName = `${data}-${opts.group}-${opts.envId}`;
-      logData[fileName] = logData[fileName] || [];
-      logData[fileName].push({ time, type, value });
-      //最大限制判断
-      if (logData[fileName].length > maxSize) {
-        logData[fileName].shift();
-      }
-      if (type === "info") {
-        props.setTipText(opts.envId, value);
-      }
-      if (type === "error") {
-        props.setTipText(props.index, value);
-      }
-      setLogData({ ...logData });
-    })
+    eventBus.on("message", logMessage)
   }, [props.data]);
 
 
@@ -79,6 +82,7 @@ export default (props: {
 
   let fileName = useMemo(() => {
     if (props.data.length === 0) return "";
+    if (props.index === -1) return;
     let time = formatDate(props.data[0]?.startTime, "yyyy-MM-dd HH:mm:ss");
     let item = props.data[props.index];
     return `${time}-${item.group}-${item.envId}`;

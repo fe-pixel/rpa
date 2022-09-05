@@ -25,18 +25,30 @@ export default (props: {
   const [logData, setLogData] = useState<logType>({});
   const logContent = useRef<HTMLDivElement | null>(null);
   const [run, setRun] = useState<boolean>(true);//控制只监听一次
-  // const [toBtoom, setToBtoom] = useState<boolean>(true);//控制只监听一次
+  const [toBtoom, setToBtoom] = useState<boolean>(true);//控制只监听一次
 
   const maxSize = 200;
   const closeHandle = () => {
     props.onClose();
   }
-
+  function mouseenter() {
+    setToBtoom(false);
+  }
+  function mouseleave() {
+    setToBtoom(true);
+  }
   useEffect(() => {
-    // logContent.current?.addEventListener("mouseenter", mouseenter)
-    // logContent.current?.addEventListener("mouseleave", mouseleave)
+    if (!props.visible) return;
+    setTimeout(() => {
+      logContent.current?.addEventListener("mouseenter", mouseenter)
+      logContent.current?.addEventListener("mouseleave", mouseleave);
+    }, 0);
+  }, [props.visible]);
+  useEffect(() => {
     return () => {
       console.log("日志-销毁");
+      logContent.current?.removeEventListener("mouseenter", mouseenter)
+      logContent.current?.removeEventListener("mouseenter", mouseleave)
       eventBus.off("message", logMessage);
     }
   }, []);
@@ -75,9 +87,9 @@ export default (props: {
 
 
   useEffect(() => {
-    // if (logContent.current) {
-    //   logContent.current.scrollTop = logContent.current?.scrollHeight;
-    // }
+    if (logContent.current && toBtoom) {
+      logContent.current.scrollTop = logContent.current?.scrollHeight;
+    }
   }, [logData])
 
   let fileName = useMemo(() => {

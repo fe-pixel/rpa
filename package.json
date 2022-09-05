@@ -1,11 +1,12 @@
 {
   "name": "@fe-pixel/rpa",
   "private": false,
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "",
   "files": [
     "dist",
-    "package.json"
+    "package.json",
+    "yarn.lock"
   ],
   "types": "./dist/type/index.d.ts",
   "main": "./dist/index.umd.js",

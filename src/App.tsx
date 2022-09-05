@@ -1,4 +1,5 @@
-import { openShoplineRpaModal } from '../components/shoplineRpaModal'
+import { openShoplineRpaModal } from '../components/shoplineRpaModal';
+import { openShoplineRpaModal as openShoplineRpaModal2 } from '../components/shoplineRpaModal2';
 import { openRpaModal } from '../components/rpaModal'
 import { openRpaModal as openRpaModal2 } from '../components/rpaModal2'
 
@@ -14,6 +15,7 @@ import { rpaSocket } from "./../utils/rpaSocket";
 import eventBus from '../utils/EventBus'
 import { executeFailFN, logDemo } from './mock'
 import { getAPIPort } from '../rpa'
+import './../index'
 function App() {
   const onClick2 = (mark) => {
     return openRpaModal2(mock[mark]());
@@ -43,6 +45,9 @@ function App() {
         console.log("RPA任务执行结果", result)
       }
     });
+  }
+  const auth2 = (mark) => {
+    let rpaModalDom = openShoplineRpaModal2(mock[mark]());
   }
   //rpaModalDom.update({});
 
@@ -263,9 +268,44 @@ function App() {
     })
 
   }
+  const logTime = async () => {
+    let ids = await getEnvIds(1);
+    runScript(
+      {
+        script: async function ({ driver }) {
+          let start = Date.now();
+          const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
+          setInterval(() => {
+            log((Date.now() - start) / 1000);
+          }, 1000)
+          await driver.get("https://www.baidu.com/");
+          await driver.sleep(20000);
+          return "成功"
+        },
+        envId: ids[0],
+        args: {
+          code: 0,
+          data: "2",
+          message: "ok",
+        },
+        group: "A",
+        options: { log: false, headless: false },
+        sessionId: "CC"
+      }
+    );
+    eventBus?.on("message", (res: any, params) => {
+      console.log(res.data.text);
+    })
+  }
 
   return (
     <div style={{ padding: "50px 150px" }}>
+      <h3>logsoket链接时长</h3>
+      <Button onClick={() => logTime()}>触发</Button>
+      <h3>修复重新执行依旧是红色的bug</h3>
+      <Button onClick={() => onClick2("fixExecuteRed")}>触发</Button>
+      <h3>授权应用给shopline</h3>
+      <Button onClick={() => auth2("auth_shopView2")}>授权应用给shopline</Button>
       <h3>简单配置</h3>
       <Button onClick={() => onClick2("simpleConfig")}>简单配置</Button>
       <Button onClick={() => onClick2("simpleConfig2k")}>多个环境同时执行简单模式</Button>

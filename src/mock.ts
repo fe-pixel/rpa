@@ -1,6 +1,9 @@
 import axios from "axios";
 import { getAPIPort } from "../rpa/common";
 import template from "./../utils/template";
+import { autoLoginError, autoLoginScript, manualLoginScript, shoplineAuthOther } from "./template";
+
+
 export let demoFn = async ({ args }) => {
   await new Promise(res => setTimeout(res, 2000));
   return args
@@ -23,11 +26,11 @@ export let logDemo = async (context) => {
   await driver.sleep(1000);
   log("我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本我是一个比较长的日志文本");
   await driver.sleep(1000);
-  logInfo(args.log);
+  logInfo("内部日志1");
   await driver.sleep(1000);
-  log(args.log);
+  logInfo("内部日志2");
   await driver.sleep(1000);
-  logInfo(args.log);
+  logInfo("内部日志3");
   // logError("执行失败");
   let arr = new Array(10).fill("");
   for (let i = 0; i < arr.length; i++) {
@@ -80,8 +83,95 @@ let envArr = [
   "9161300723794233646"
 ];
 ; (async () => {
-  envArr = await getEnvIds(100);
+  envArr = await getEnvIds(500);
 })()
+export const fixExecuteRed = () => ({
+  title: "我的测试title",
+  data: [
+    {
+      "envId": envArr[1],
+      "autoLoginScript": {
+        "scriptName": "登录失败",
+        "runScript": demoFn,
+        args: {
+          code: 0,
+          message: "",
+          deta: null
+        },
+        options: { headless: false }
+      },
+      "manualLoginScript": {
+        "runScript": manualLoginScript,
+      },
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            code: 0,
+            message: "",
+            log: "日志1",
+            data: null
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+  },
+  onClose: (res) => {
+    console.log(res);
+  },
+  onRunComplete: (result) => {
+    console.log("RPA任务执行结果", result)
+  }
+})
+export const auth_shopView2 = () => ({
+  title: "我的测试title",
+  "simple": true,
+  data: [
+    {
+      "envId": envArr[1],
+      "autoLoginScript": {
+        "scriptName": "登录失败",
+        "runScript": autoLoginScript,
+        "args": {
+          account: "zz2022shopline@163.com"
+        },
+        "options": { headless: false },
+      },
+      "manualLoginScript": {
+        "runScript": manualLoginScript,
+        "args": {
+          account: "zz2022shopline@163.com"
+        }
+      },
+      "script": [
+        {
+          "scriptName": "去授权",
+          "args": {
+            "admin_url": "",
+            "appKey": "",
+            "secret": "",
+            "redirectUri": ""
+          }
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+  },
+  onClose: (res) => {
+    console.log(res);
+  },
+  onRunComplete: (result) => {
+    console.log("RPA任务执行结果", result)
+  }
+})
 
 export let simpleConfig2k = () => ({
   title: "我的测试title",
@@ -1140,7 +1230,7 @@ export let newModal = () => ({
   key: "A",
   data: [
     {
-      "envId": envArr[1],
+      "envId": envArr[0],
       "autoLoginScript": {
         "scriptName": "我是很长的脚本名称我是很长的脚本名称我是很长的脚本名称",
         "runScript": demoFn,

@@ -529,7 +529,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let group = item?.group;
     let sessionId = item?.group + item?.envId + `-manualLoginScript`;
     //每条记录加载完就重新渲染
-    item.tipText = "执行自动登录中...";
+    item.tipText = "执行手动登录中...";
     //运行脚本
     let p = runScript({
       script, args, envId, options, group, accountId, sessionId

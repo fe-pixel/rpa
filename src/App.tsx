@@ -270,18 +270,17 @@ function App() {
   }
   const logTime = async () => {
     let ids = await getEnvIds(1);
+    // console.time("logTime");
     runScript(
       {
         script: async function ({ driver }) {
-          let start = Date.now();
           const { log, logInfo, logError } = require('@fe-pixel/rpa-node');
-          setInterval(() => {
-            log((Date.now() - start) / 1000);
-          }, 1000)
+          log(2);
           await driver.get("https://www.baidu.com/");
           await driver.sleep(20000);
           return "成功"
         },
+        // envId: "9217680443747718621",
         envId: ids[0],
         args: {
           code: 0,

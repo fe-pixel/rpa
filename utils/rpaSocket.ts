@@ -42,7 +42,7 @@ export const rpaSocket = (prot: string, opts: params) => {
   // 监听集合
   const init = () => {
     socket.onclose = (e: any) => {
-      console.log('链接关闭', e);
+      // console.log('链接关闭', e);
       !stop && reconnect();
       //清除已关闭socket
       soketMap[opts.envId] = soketMap[opts.envId]?.filter(s => s.readyState === 1);
@@ -53,7 +53,7 @@ export const rpaSocket = (prot: string, opts: params) => {
     };
 
     socket.onopen = () => {
-      console.log('链接成功');
+      // console.log('链接成功');
       soketMap[opts.envId] = soketMap[opts.envId] || [];
       soketMap[opts.envId].push(socket);
     };
@@ -76,13 +76,12 @@ export const rpaSocket = (prot: string, opts: params) => {
   const reconnect = () => {
     if (stop) return;
     if (lockReconnect) return;
-    console.log('soket重连')
     lockReconnect = true;
     reconnectTimer && clearTimeout(reconnectTimer);
     reconnectTimer = setTimeout(function () {
       createWebSocket();
       lockReconnect = false;
-    }, 4000);
+    }, 1000);
   }
   function stopFn() {
     stop = true;

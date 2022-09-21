@@ -27,6 +27,7 @@ function getContainer(id: string) {
 
 const openRpaModal = (config: IRPAConfig) => {
   let key = config.key || "defalut";
+  config.keyId = key;
   const container = getContainer(key);
   key && (container.id = key);
 

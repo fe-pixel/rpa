@@ -58,6 +58,11 @@ export default (props: {
     if (opts.group !== props.data[0]?.group) return;
     if (log.type != "log") return;
     let value = log?.data?.text;
+    if (Object.prototype.toString.call(value) === "[object Object]" ||
+      Object.prototype.toString.call(value) === "[object Array]"
+    ) {
+      value = JSON.stringify(value)
+    }
     let type = log?.data?.level;
     let time = log?.data?.time?.slice(0, log?.data?.time?.lastIndexOf("."));
     time = formatDate(new Date(time), "yyyy-MM-dd HH:mm:ss");
@@ -116,7 +121,7 @@ export default (props: {
         <span className="back-span">返回</span>
       </span>
       <Divider type="vertical" style={{ margin: '0px 12px', height: '24px' }} />
-      {props.data[props.index]?.envName}-执行日志
+      {props.data[props.index]?.envName === "--" ? "执行日志" : `${props.data[props.index]?.envName}-执行日志`}
       <div className="right-btns">
         <div className="opt close" onClick={() => closeHandle()} ></div>
       </div>

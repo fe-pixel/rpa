@@ -57,6 +57,7 @@ export interface IRpaScriptX extends IRpaScript {
 const defaultOptions = { log: false, headless: true };
 
 const RpaTasksModal = (config: IRPAConfigX) => {
+
   const [data, setData] = useState<IRpaItemX[]>([]);
   const [modalTitle, setModalTitle] = useState(config.title || "RPA任务");
   const [showNotice, setShowNotice] = useState(false);
@@ -74,7 +75,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
   const [groupUid, setGroupUid] = useState<string>(getUid());
 
-  const [setting, setSetting] = useState<Tsetting>({
+  const [setting, setSetting] = useState({
     executeNumber: defaultConfig.executeNumber,
     interval: defaultConfig.interval,
     limit: defaultConfig.limit,
@@ -92,12 +93,16 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let groupUid = initGroup(setting);
     let result = initData(setting, groupUid);
     runCheck(result);
-    function Fn(groupUid: any, limit: any) {
+    function Fn(groupUid: any, limit: any, configP: any) {
       if (!(groupUid in groupMap)) return;
       if (setting.limit === limit) return;
-      groupMap[groupUid] = limit;
-      setSetting({ ...setting, limit });
-      setConcurrent({ group: groupUid, limit: limit });
+      console.log(config, configP);
+      if (config.keyId === configP.keyId) {
+        groupMap[groupUid] = limit;
+        setConcurrent({ group: groupUid, limit: limit });
+      } else {
+        setSetting({ ...setting, limit });
+      }
     }
     eventBus.on(`updateLimit-${groupUid}`, Fn);
     return () => {
@@ -169,7 +174,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     if (config.group) {
       group = `${winGid}-${config.group}`;
       groupMap[group] = settingP.limit;
-      eventBus.emit(`updateLimit-${group}`, group, settingP.limit);
+      eventBus.emit(`updateLimit-${group}`, group, settingP.limit, config);
     } else {
       group = getUid();
     }
@@ -760,7 +765,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     setSetting(settingTemp);
     if (groupUid in groupMap) {
       if (groupMap[groupUid] !== settingTemp.limit) {
-        eventBus.emit(`updateLimit-${groupUid}`, groupUid, settingTemp.limit);
+        eventBus.emit(`updateLimit-${groupUid}`, groupUid, settingTemp.limit, config);
       }
     }
   }

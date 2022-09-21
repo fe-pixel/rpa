@@ -85,6 +85,51 @@ let envArr = [
 ; (async () => {
   envArr = await getEnvIds(500);
 })()
+export const notEnvId = () => ({
+  title: "我的测试title",
+  simple: true,
+  data: [
+    {
+      "envId": "none",
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            code: 0,
+            message: "",
+            log: "日志1",
+            data: null
+          }
+        },
+        {
+          "scriptName": "脚本2",
+          "runScript": demoFn
+        },
+        {
+          "scriptName": "脚本3",
+          "runScript": demoFn
+        },
+        {
+          "scriptName": "脚本4",
+          "runScript": demoFn
+        },
+        {
+          "scriptName": "脚本5",
+          "runScript": demoFn
+        }
+      ]
+    }
+  ],
+  onBeforeRuning: () => {
+  },
+  onClose: (res) => {
+    console.log(res);
+  },
+  onRunComplete: (result) => {
+    console.log("RPA任务执行结果", result)
+  }
+})
 export const fixExecuteRed = () => ({
   title: "我的测试title",
   data: [
@@ -626,6 +671,7 @@ export let pressureTest = () => {
   return {
     key: "A",
     title: "我的测试title",
+    group: "setting1",
     data: envArr.map(v => ({
       "envId": v,
       "autoLoginScript": {
@@ -1242,11 +1288,7 @@ export let newModal = () => ({
         {
           "scriptName": "脚本1",
           "runScript": demoFn,
-          "args": {
-            code: 0,
-            data: "脚本1",
-            message: "666",
-          }
+          "args": "错误"
         },
         {
           "scriptName": "脚本2",

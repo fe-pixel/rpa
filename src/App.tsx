@@ -299,6 +299,8 @@ function App() {
 
   return (
     <div style={{ padding: "50px 150px" }}>
+      <h3>无环境测试</h3>
+      <Button onClick={() => onClick2("notEnvId")}>触发</Button>
       <h3>logsoket链接时长</h3>
       <Button onClick={() => logTime()}>触发</Button>
       <h3>修复重新执行依旧是红色的bug</h3>

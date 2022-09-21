@@ -19,11 +19,11 @@ export const getEnvItem = async (envId: string) => {
 }
 
 export const setConcurrent = (params: { group: string, limit: number }) => {
-  return axios.request({
-    url: `http://127.0.0.1:${shopviewLauncherApi.getLocalApiPort()}/api/v1/rpa/group/concurrent`,
-    method: "post",
-    data: params,
+  const blob = new Blob([JSON.stringify(params)], {
+    type: 'application/json; charset=UTF-8',
   });
+  //sendBeacon 不占用http请求数
+  navigator.sendBeacon(`http://127.0.0.1:${shopviewLauncherApi.getLocalApiPort()}/api/v1/rpa/group/concurrent`, blob);
 }
 
 //公共业务

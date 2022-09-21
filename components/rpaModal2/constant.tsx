@@ -35,6 +35,7 @@ export const RpaItemStatusMap: any = {
 
 
 export interface IRPAConfig {
+  keyId: string;//跟config.key 相同
   simple?: boolean,//是否是简单模式  简单模式会跳过自动登录和手动登录
   key?: string,//是否状态保持的标识
   autoExecute?: boolean;//是否自动执行 默认false
@@ -88,7 +89,6 @@ export type result = {
   code: number,
   data: any,
   message: string,
-  isKeepOpen?: boolean //运行浏览器是否保持窗口打开
 }
 
 export const winGid = getUid();

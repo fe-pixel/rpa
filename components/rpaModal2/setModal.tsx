@@ -32,7 +32,7 @@ export default (props: { visible: boolean, setting: Tsetting, onSave: Function, 
   useEffect(() => {
     setSetting({ ...props.setting });
     form.setFieldsValue({ ...props.setting });
-  }, [props.setting]);
+  }, [props.visible]);
   const closeHandle = () => {
     props.onClose();
   }

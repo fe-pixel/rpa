@@ -4,12 +4,16 @@ import { envRecover, runScript } from './../../rpa/ui'
 
 import { IRPAConfig, IRpaItem, RpaItemStatus, RPAProcess } from "./constant";
 import { IRpaItemX, Tsetting } from "./modal";
+import { shopviewLauncherApi } from "../../service/ShopViewAPI";
 function checkParams(item: IRpaItem, simple: boolean) {
   //参数检测
   if (!item.envId) {
     throw new Error("组件envId为空");
   }
   if (!simple) {
+    if (item.envId === "none") {
+      throw new Error("无环境只支持简单模式，请配置simple:true");
+    }
     if (!item.autoLoginScript) {
       throw new Error("自动登录脚本为空");
     }
@@ -43,9 +47,8 @@ export function init(config: IRPAConfig, settingValue: Tsetting, group: string):
       startTime: new Date(),
       alreadyExecuteNumber: 0,
     };
-    //设置下并发数
     result.push(runResult);
-  })
+  });
   return result
 }
 export async function check(rpaItems: IRpaItemX[], setData: Function) {
@@ -152,6 +155,22 @@ export async function simpleCheck(rpaItems: IRpaItemX[], setData: Function) {
     const item = rpaItems[i];
     //中途停止退出操作
     if (item.status === RpaItemStatus.FAIL) break;
+    if (item.envId === "none") {
+      //无环境被占用
+      let ids = shopviewLauncherApi.getExpandActiveList();
+      if (!!ids.find((v: any) => v?.id === "none")) {
+        item.status = RpaItemStatus.FAIL;
+        item.tipText = "环境被占用";
+        setData([...rpaItems]);
+        return;
+      }
+      item.status = RpaItemStatus.SUCCESS;
+      item.tipText = "检查正常";
+      item.checked = true;
+      item.envName = "--"
+      setData([...rpaItems]);
+      continue;
+    }
     let p = getEnvItem(item.envId).then(res => {
       let { code, data } = res;
       //获取环境失败

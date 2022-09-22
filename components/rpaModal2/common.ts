@@ -36,7 +36,7 @@ export function init(config: IRPAConfig, settingValue: Tsetting, group: string):
       ...item,
       envName: `环境${i + 1}`,
       status: RpaItemStatus.LOADING,
-      tipText: "正在检测...",
+      tipText: "",//初始什么都没有
       checked: false,
       scriptName: item.autoLoginScript?.scriptName || "自动登录脚本",
       group: group,
@@ -122,15 +122,16 @@ export async function check(rpaItems: IRpaItemX[], setData: Function) {
       item.autoLoginScript && (item.autoLoginScript.cancel = undefined);
       if (res.code === 0) {
         item.status = RpaItemStatus.SUCCESS;
-        item.tipText = "检查正常";
+        // item.tipText = "检查正常";
         item.checked = true;
       } else {
         item.status = RpaItemStatus.FAIL;
-        if (res.code === -1) {
-          item.tipText = res.message || "登录失败";
-        } else {
-          item.tipText = "登录失败";
-        }
+        item.tipText = res.message || "登录失败";
+        // if (res.code === -1) {
+        //   item.tipText = res.message || "登录失败";
+        // } else {
+        //   item.tipText = "登录失败";
+        // }
 
         item.checked = false;
       }
@@ -165,7 +166,7 @@ export async function simpleCheck(rpaItems: IRpaItemX[], setData: Function) {
         return;
       }
       item.status = RpaItemStatus.SUCCESS;
-      item.tipText = "检查正常";
+      // item.tipText = "检查正常";
       item.checked = true;
       item.envName = "--"
       setData([...rpaItems]);
@@ -212,7 +213,7 @@ export async function simpleCheck(rpaItems: IRpaItemX[], setData: Function) {
         }
       }
       item.status = RpaItemStatus.SUCCESS;
-      item.tipText = "检查正常";
+      // item.tipText = "检查正常";
       item.checked = true;
       setData([...rpaItems]);
     });

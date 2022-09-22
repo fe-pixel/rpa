@@ -270,7 +270,7 @@ function App() {
   }
   const logTime = async () => {
     let ids = await getEnvIds(1);
-    // console.time("logTime");
+    console.time("logTime");
     runScript(
       {
         script: async function ({ driver }) {
@@ -293,12 +293,15 @@ function App() {
       }
     );
     eventBus?.on("message", (res: any, params) => {
+      console.timeEnd("logTime");
       console.log(res.data.text);
     })
   }
 
   return (
     <div style={{ padding: "50px 150px" }}>
+      <h3>状态显示</h3>
+      <Button onClick={() => onClick2("statusShow")}>触发</Button>
       <h3>无环境测试</h3>
       <Button onClick={() => onClick2("notEnvId")}>触发</Button>
       <h3>logsoket链接时长</h3>

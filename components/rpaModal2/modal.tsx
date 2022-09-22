@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, MouseEventHandler, useMemo } from "react";
 import { Button, Modal, ConfigProvider, Checkbox, message, Alert } from "antd";
-import { IRPAConfig, IRpaScript, IRpaItem, TReturnResult, RPAProcess, RpaItemStatus, RpaItemStatusMap, OptsTipMap, defaultConfig, winGid, groupMap } from './constant'
+import { IRPAConfig, IRpaScript, IRpaItem, TReturnResult, RPAProcess, RpaItemStatus, LogItemStatusMap, RpaItemStatusMap, OptsTipMap, defaultConfig, winGid, groupMap } from './constant'
 import { runScript } from './../../rpa/ui'
 import './style.less'
 import List from 'rc-virtual-list';
@@ -87,7 +87,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   const [reSetLog, setReSetLog] = useState<any>(Date.now());
 
   useEffect(() => {
-    console.log("运行");
     //设置项赋值
     let setting = initSetting();
     let groupUid = initGroup(setting);
@@ -96,7 +95,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     function Fn(groupUid: any, limit: any, configP: any) {
       if (!(groupUid in groupMap)) return;
       if (setting.limit === limit) return;
-      console.log(config, configP);
       if (config.keyId === configP.keyId) {
         groupMap[groupUid] = limit;
         setConcurrent({ group: groupUid, limit: limit });
@@ -107,7 +105,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     eventBus.on(`updateLimit-${groupUid}`, Fn);
     return () => {
       eventBus.off(`updateLimit-${groupUid}`, Fn);
-      console.log("销毁");
     }
   }, []);
 
@@ -253,6 +250,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     if (item.status === RpaItemStatus.FAIL) return;
     //准备参数
     let runScriptItem = item.script[item.step];
+    if (!runScriptItem) return;
     let script = runScriptItem.runScript;
     let args = runScriptItem.args || {};
     let envId = item.envId;
@@ -267,7 +265,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     //每条记录加载完就重新渲染
     item.scriptName = runScriptItem.scriptName
     item.status = RpaItemStatus.LOADING;
-    item.tipText = "执行中...";
+    // item.tipText = "执行中...";
     //运行脚本
     let p = runScript({
       script, args, envId, options, group, accountId, sessionId
@@ -297,7 +295,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         if (setting.interval > 0) {
           item.interval = setting.interval * 1000;
           item.status = RpaItemStatus.WAITING;
-          item.tipText = "等待中...";
+          // item.tipText = "等待中...";
           //这里做等待的倒计时
 
           stepTime(item.interval, (time: number) => {
@@ -325,17 +323,13 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       //成功的通知
       if (item.step === item.script.length && item.executeNumber === 1) {
         item.status = RpaItemStatus.SUCCESS;
-        item.tipText = "执行成功";
+        // item.tipText = "执行成功";
       }
       //下一个脚本运行
       next();
     } else {
       item.status = RpaItemStatus.FAIL;
-      if (res.code === -1) {
-        item.tipText = res.message || "执行失败";
-      } else {
-        item.tipText = "执行失败";
-      }
+      item.tipText = res.message || "执行失败";
     }
     //每条记录加载完就重新渲染
     data[item.index] = item;
@@ -402,7 +396,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       //关闭正在执行的登录脚本
       item.autoLoginScript?.cancel?.();
       item.manualLoginScript?.cancel?.();
-      if (item.status !== RpaItemStatus.SUCCESS) {
+      if (item.status !== RpaItemStatus.SUCCESS && item.checked) {
         item.status = RpaItemStatus.FAIL;
         item.tipText = "已终止";
         for (const scriptItem of item.script) {
@@ -414,8 +408,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     setProcess(RPAProcess.END);
   }
 
-
-
   function executeScript() {
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
@@ -426,9 +418,6 @@ const RpaTasksModal = (config: IRPAConfigX) => {
   }
 
   useEffect(() => {
-    //调试
-    // //@ts-expect-error
-    // window.rpaData = data;
     if (process !== RPAProcess.RUNING) return;
     // // 点击执行之后，监测执行情况
     let isAllRpaFinish = false;
@@ -438,6 +427,12 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     if (isAllRpaFinish) {
       setProcess(RPAProcess.END);
     }
+
+    // //调试
+    // //@ts-expect-error
+    // window.rpaData = data;
+    // //@ts-expect-error
+    // window.process = process;
   }, [data]);
 
 
@@ -534,7 +529,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let group = item?.group;
     let sessionId = item?.group + item?.envId + `-manualLoginScript`;
     //每条记录加载完就重新渲染
-    item.tipText = "执行手动登录中...";
+    // item.tipText = "执行手动登录中...";
     //运行脚本
     let p = runScript({
       script, args, envId, options, group, accountId, sessionId
@@ -542,6 +537,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
     //把取消函数存储起来;
     item.manualLoginScript && (item.manualLoginScript.cancel = p.cancel);
+
+    //更新状态
+    item.status = RpaItemStatus.RECOVER;
 
     //更新视图
     data[item.index] = item;
@@ -555,18 +553,14 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       //成功
       item.checked = true;
       item.status = RpaItemStatus.SUCCESS;
-      item.tipText = "手动登录成功";
+      item.tipText = "";
       autoRunBtnDisabled();
       autoAllCheck();
       autoShowNotice();
     } else {
       //失败
       item.status = RpaItemStatus.FAIL;
-      if (res.code === -1) {
-        item.tipText = res.message || "登录失败";
-      } else {
-        item.tipText = "登录失败";
-      }
+      item.tipText = res.message || "登录失败";
     }
     data[item.index] = item;
     setData([...data]);
@@ -583,8 +577,9 @@ const RpaTasksModal = (config: IRPAConfigX) => {
     let group = item?.group;
     let sessionId = item?.group + item?.envId + `-${item.step}`;
     //每条记录加载完就重新渲染
-    item.scriptName = runScriptItem.scriptName
-    item.tipText = "执行修复中...";
+    item.scriptName = runScriptItem.scriptName;
+
+    // item.tipText = "执行修复中...";
     //运行脚本
     let p = runScript({
       script, args, envId, options, group, accountId, sessionId
@@ -594,6 +589,17 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
     //更新视图
     data[item.index] = item;
+
+    //单个状态和全局状态
+    item.status = RpaItemStatus.RECOVER;
+    let isAllRpaFinish = false;
+    isAllRpaFinish = data.filter(v => v.checked).every(v =>
+      [RpaItemStatus.SUCCESS, RpaItemStatus.FAIL].includes(v.status)
+    );
+    if (!isAllRpaFinish) {
+      setProcess(RPAProcess.RUNING);
+    }
+
     setData([...data]);
     let res = await p;
     //把原本的取消函数还原
@@ -620,7 +626,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
         if (setting.interval > 0) {
           item.interval = setting.interval * 1000;
           item.status = RpaItemStatus.WAITING;
-          item.tipText = "等待中...";
+          // item.tipText = "等待中...";
           //这里做等待的倒计时
           stepTime(item.interval, (time: number) => {
             item.interval = time;
@@ -646,18 +652,14 @@ const RpaTasksModal = (config: IRPAConfigX) => {
       }
       //成功的通知
       item.status = RpaItemStatus.SUCCESS;
-      item.tipText = "修复成功";
+      item.tipText = "";
       data[item.index] = item;
       setData([...data]);
       //下一个脚本运行
       _executeScript(item);
     } else {
       item.status = RpaItemStatus.FAIL;
-      if (res.code === -1) {
-        item.tipText = res.message || "执行失败";
-      } else {
-        item.tipText = "执行失败";
-      }
+      item.tipText = res.message || "执行失败";
     }
     //每条记录加载完就重新渲染
     data[item.index] = item;
@@ -709,23 +711,64 @@ const RpaTasksModal = (config: IRPAConfigX) => {
 
           <div className={["log",
             (setting.executeNumber > 1 ? "min" : ""),
-            RpaItemStatusMap[item.status]].join(" ")} title={item.tipText}>
+            LogItemStatusMap[item.status]].join(" ")} title={item.tipText}>
             <span className="logBtn" onClick={(e) => showLogModal(e, index)}>log</span>
             {item.tipText}
           </div>
+
           <div className="opts">
-            <span className={RpaItemStatusMap[item.status]}>
-              {(!item.checked && process === RPAProcess.END) ? "" :
-                OptsTipMap[process + item.status]
-              }
-            </span>
-            {item.status === RpaItemStatus.LOADING && <span className="loading"></span>}
-            {item.status === RpaItemStatus.SUCCESS &&
-              <CheckCircleFilled className="success"></CheckCircleFilled>
+            {/* 操作栏-检测阶段 */}
+            {process === RPAProcess.CHECKING &&
+              <>
+                <span className={RpaItemStatusMap[item.status]}>{OptsTipMap[process + item.status]}</span>
+                {(item.status === RpaItemStatus.LOADING || item.status === RpaItemStatus.RECOVER) && <span className="loading"></span>}
+
+                {item.status === RpaItemStatus.SUCCESS &&
+                  <CheckCircleFilled className="success"></CheckCircleFilled>
+                }
+              </>
             }
-            {item.status === RpaItemStatus.WAITING &&
-              <HistoryOutlined className="nomal"></HistoryOutlined>
+            {/* 操作栏-检测完成 */}
+            {process === RPAProcess.CHECK_DONE &&
+              <>
+                <span className={RpaItemStatusMap[item.status]}>{OptsTipMap[process + item.status]}</span>
+                {item.status === RpaItemStatus.SUCCESS &&
+                  <CheckCircleFilled className="success"></CheckCircleFilled>
+                }
+
+              </>
             }
+            {/* 操作栏-运行阶段 */}
+            {process === RPAProcess.RUNING &&
+              <>
+                {item.checked ?
+                  <>
+                    <span className={RpaItemStatusMap[item.status]}>{OptsTipMap[process + item.status]}</span>
+                    {(item.status === RpaItemStatus.LOADING || item.status === RpaItemStatus.RECOVER) && <span className="loading"></span>}
+                    {item.status === RpaItemStatus.WAITING &&
+                      <HistoryOutlined className="nomal"></HistoryOutlined>
+                    }
+                  </>
+                  : RpaItemStatus.FAIL === item.status ? <span className="error">未处理</span>
+                    : <span className="nomal">未选中</span>}
+
+              </>
+            }
+            {/* 操作栏-运行结束 */}
+            {process === RPAProcess.END &&
+              <>
+                {item.checked ?
+                  <>
+                    <span className={RpaItemStatusMap[item.status]}>{OptsTipMap[process + item.status]}</span>
+                    {item.status === RpaItemStatus.SUCCESS &&
+                      <CheckCircleFilled className="success"></CheckCircleFilled>
+                    }
+                  </> : RpaItemStatus.FAIL === item.status ? <span className="error">未处理</span>
+                    : <span className="nomal">未选中</span>
+                }
+              </>
+            }
+
             {/* 打开做登录 */}
             {([RPAProcess.CHECKING, RPAProcess.CHECK_DONE].includes(process)) &&
               item.status === RpaItemStatus.FAIL && (!config.simple) &&
@@ -742,7 +785,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
               </span>
             }
             {/* 打开做继续执行 */}
-            {([RPAProcess.RUNING].includes(process)) &&
+            {([RPAProcess.RUNING, RPAProcess.END].includes(process)) &&
               item.status === RpaItemStatus.FAIL &&
               item.checked === true &&
               <Button
@@ -750,15 +793,12 @@ const RpaTasksModal = (config: IRPAConfigX) => {
                 loading={item.btnLoading} >
                 打开</Button>
             }
-            {
-              process > RPAProcess.CHECK_DONE &&
-              item.status === RpaItemStatus.FAIL &&
-              item.checked === false &&
-              <span className="error">未处理</span>
-            }
+
+
+
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
     );
   }
   const updateSetting = (settingTemp: Tsetting) => {

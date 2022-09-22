@@ -59,7 +59,7 @@ const handleApiError = (response: AxiosResponse) => {
   const msg = response.data.message;
   if (code === 0) return;
   if (code === -2) {
-    console.error('------服务响应异常------', response);
+    // console.error('------服务响应异常------', response);
     let mesObj = { message: msg, type: "error", code, url }
     runNotification(mesObj);
     return;

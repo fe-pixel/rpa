@@ -40,11 +40,12 @@ export let logDemo = async (context) => {
   await driver.sleep(1000);
   logInfo(Math.random());
 
-  return {
-    code: 0,
-    data: args.log,
-    message: "ok"
-  };
+  // return {
+  //   code: 0,
+  //   data: args.log,
+  //   message: "ok"
+  // };
+  return args;
 }
 export const executeFailFN = `module.exports = async (context) => {
   const { Builder, By, until } = require("selenium-webdriver");
@@ -85,6 +86,62 @@ let envArr = [
 ; (async () => {
   envArr = await getEnvIds(500);
 })()
+export const statusShow = () => ({
+  title: "我的测试title",
+  simple: true,
+  data: [
+    {
+      "envId": envArr[0],
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": logDemo,
+          "args": {
+            code: 0,
+            message: "",
+            log: "日志1",
+            data: null
+          }
+        }]
+    },
+    {
+      "envId": envArr[1],
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": executeFailFN,
+          "args": {
+            code: -1,
+            message: "",
+            log: "日志2",
+            data: null
+          }
+        }]
+    },
+    {
+      "envId": envArr[2],
+      "script": [
+        {
+          "scriptName": "脚本1",
+          "runScript": demoFn2,
+          "args": {
+            code: -2,
+            message: "",
+            log: "日志3",
+            data: null
+          }
+        }]
+    }
+  ],
+  onBeforeRuning: () => {
+  },
+  onClose: (res) => {
+    console.log(res);
+  },
+  onRunComplete: (result) => {
+    console.log("RPA任务执行结果", result)
+  }
+})
 export const notEnvId = () => ({
   title: "我的测试title",
   simple: true,

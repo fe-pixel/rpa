@@ -9,6 +9,7 @@ export enum RPAProcess {
 }
 export enum RpaItemStatus {
   LOADING = 1,
+  RECOVER,
   SUCCESS,
   FAIL,
   WAITING
@@ -17,17 +18,25 @@ export enum RpaItemStatus {
 //tip 加个空格为了好看~
 export const OptsTipMap: any = {
   [RPAProcess.CHECKING + RpaItemStatus.LOADING]: "检查中 ",
+  [RPAProcess.CHECKING + RpaItemStatus.RECOVER]: "修复中 ",
   [RPAProcess.CHECKING + RpaItemStatus.SUCCESS]: "可执行 ",
   [RPAProcess.CHECK_DONE + RpaItemStatus.SUCCESS]: "可执行 ",
+  [RPAProcess.CHECK_DONE + RpaItemStatus.RECOVER]: "修复中 ",
   [RPAProcess.RUNING + RpaItemStatus.WAITING]: "等待中 ",
+  [RPAProcess.RUNING + RpaItemStatus.RECOVER]: "修复中 ",
   [RPAProcess.RUNING + RpaItemStatus.LOADING]: "执行中 ",
   [RPAProcess.RUNING + RpaItemStatus.SUCCESS]: "执行成功 ",
   [RPAProcess.END + RpaItemStatus.SUCCESS]: "执行成功 ",
-  [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败 ",
+  // [RPAProcess.END + RpaItemStatus.FAIL]: "执行失败 ",
+}
+export const LogItemStatusMap: any = {
+  [RpaItemStatus.RECOVER]: "error",
+  [RpaItemStatus.FAIL]: "error",
 }
 export const RpaItemStatusMap: any = {
   [RpaItemStatus.WAITING]: "nomal",
   [RpaItemStatus.LOADING]: "nomal",
+  [RpaItemStatus.RECOVER]: "nomal",
   [RpaItemStatus.SUCCESS]: "success",
   [RpaItemStatus.FAIL]: "error",
 }

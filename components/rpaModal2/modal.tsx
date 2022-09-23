@@ -710,7 +710,7 @@ const RpaTasksModal = (config: IRPAConfigX) => {
           }
 
           <div className={["log",
-            (setting.executeNumber > 1 ? "min" : ""),
+            (setting.executeNumber > 1 ? "min" : ""), "nomal",
             LogItemStatusMap[item.status]].join(" ")} title={item.tipText}>
             <span className="logBtn" onClick={(e) => showLogModal(e, index)}>log</span>
             {item.tipText}

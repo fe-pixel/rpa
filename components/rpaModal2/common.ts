@@ -157,6 +157,7 @@ export async function simpleCheck(rpaItems: IRpaItemX[], setData: Function) {
     //中途停止退出操作
     if (item.status === RpaItemStatus.FAIL) break;
     if (item.envId === "none") {
+      await new Promise(res => setTimeout(res, 200));
       //无环境被占用
       let ids = shopviewLauncherApi.getExpandActiveList();
       if (!!ids.find((v: any) => v?.id === "none")) {

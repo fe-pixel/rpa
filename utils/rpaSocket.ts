@@ -61,11 +61,6 @@ export const rpaSocket = (prot: string, opts: params) => {
     socket.onmessage = (event: any) => {
       let tempContent = event.data;
       try {
-        tempContent = decodeURIComponent(tempContent);
-      } catch (error) {
-        tempContent = tempContent;
-      }
-      try {
         const res = JSON.parse(tempContent);
         // console.log("收到消息", res);
         eventBus.emit("message", res, opts);
